@@ -1,4 +1,7 @@
-set-option -g default-shell /usr/local/bin/fish
+#finds fish correct location
+#source ~/.dotfiles/tmux/configure_terminal.sh
+#set-option -g default-shell 
+
 set -g default-terminal "xterm-256color"
 setw -g automatic-rename off
 setw -g mode-keys vi
