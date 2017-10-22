@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+echo "Initializing submodule(s)"
+git submodule update --init --recursive
+
 DOTFILES=$HOME/.dotfiles
 
 echo -e "\nCreating symlinks"
