@@ -9,8 +9,11 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 
         # Install or update vim & tmux dependencies
         # Requires some sudo action
-        sudo apt-get update
-        sudo apt-get install -y vim tmux
+        apt-get update
+        apt-get install -y vim tmux curl
+
+        #install oh my fish
+        curl -L https://get.oh-my.fish | fish
 
 else 
         echo "what OS are you using?"
