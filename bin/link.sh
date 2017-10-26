@@ -41,19 +41,7 @@ done
 # as it is not really being actively maintained. However, I would still
 # like to configure vim, so lets symlink ~/.vimrc and ~/.vim over to their
 # neovim equivalent.
-
-echo -e "\n\nCreating vim symlinks"
+echo "Creating VIM symlinks"
 echo "=============================="
-VIMFILES=$( "$HOME/.vim:$DOTFILES/vim/.vim"
-        "$HOME/.vimrc:$DOTFILES/vim/.vimrc" )
-
-for file in "${VIMFILES[@]}"; do
-    KEY=${file%%:*}
-    VALUE=${file#*:}
-    if [ -e ${KEY} ]; then
-        echo "${KEY} already exists... skipping."
-    else
-        echo "Creating symlink for $KEY"
-        ln -s ${VALUE} ${KEY}
-    fi
-done
+ln -s $DOTFILES/config/nvim ~/.vim
+ln -s $DOTFILES/config/nvim/init.vim ~/.vimrc   
