@@ -29,7 +29,8 @@ Plug 'nvie/vim-flake8'
 Plug 'kien/ctrlp.vim'
 Plug 'Valloric/YouCompleteMe'
 Plug 'scrooloose/nerdtree'
-Plug 'scrooloose/syntastic'
+Plug 'scrooloose/nerdcommenter'
+Plug 'w0rp/ale'
 Plug 'tpope/vim-surround'
 
 
