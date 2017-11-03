@@ -36,3 +36,6 @@ source ~/.dotfiles/bin/link.sh
 # now we run nvim and vim to install the plugins
 nvim +PlugInstall +qall
 vim +PlugInstall +qall
+# compile youcompleteme
+cd ~/.dotfiles/config/nvim/plugged/YouCompleteMe
+./install.py
