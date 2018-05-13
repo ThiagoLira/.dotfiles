@@ -52,7 +52,6 @@ set hidden
 set statusline=%(%F%m%r%h%w\ [%Y]\ %{&encoding}\ %)%=%(%l,%v\ %LL\ %p%%%)
 set laststatus=2
 set autoindent
-set number              " show line numbers
 
 set listchars=tab:▸\ ,trail:▫
 
@@ -100,6 +99,16 @@ nmap <LEADER>s :split<CR>
 "+ and - to resize splited windows"
 map - <C-W>-
 map = <C-W>+
+
+
+
+"add relative numbering"
+set number relativenumber
+set !number !relativenumber
+
+
+
+
 
 
 autocmd StdinReadPre * let s:std_in=1
