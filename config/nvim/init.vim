@@ -104,7 +104,7 @@ map = <C-W>+
 
 "add relative numbering"
 set number relativenumber
-set !number !relativenumber
+" set !number !relativenumber
 
 
 
