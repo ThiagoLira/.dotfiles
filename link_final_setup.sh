@@ -4,8 +4,8 @@
 #first generate tmux configuration file with correct fish location!
 $(cd tmux ; sh configure_terminal.sh)
 
-
-
+#install tmux plugin manager
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 
 echo "Initializing submodule(s)"
