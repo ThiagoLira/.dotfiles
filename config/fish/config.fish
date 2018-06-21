@@ -30,6 +30,8 @@ set -g fish_color_search_match --background=purple
 set -g fish_color_status 5f0000
 set -g fish_color_user 5f875f
 set -g fish_color_valid_path --underline
- 
-fish_vi_key_bindings
+
+source ~/.config/fish/functions/z.fish
+
+source (conda info --root)/etc/fish/conf.d/conda.fish
 
