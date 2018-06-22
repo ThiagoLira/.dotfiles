@@ -33,5 +33,5 @@ set -g fish_color_valid_path --underline
 
 source ~/.config/fish/functions/z.fish
 
-source (conda info --root)/etc/fish/conf.d/conda.fish
+#source (conda info --root)/etc/fish/conf.d/conda.fish
 
