@@ -118,7 +118,7 @@ set number relativenumber
 
 
 
-
+set mouse=a
 
 
 autocmd StdinReadPre * let s:std_in=1
