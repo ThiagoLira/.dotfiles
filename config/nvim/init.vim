@@ -27,7 +27,6 @@ call plug#begin('~/.config/nvim/plugged')
 Plug 'flazz/vim-colorschemes'
 Plug 'nvie/vim-flake8'
 Plug 'kien/ctrlp.vim'
-Plug 'scrooloose/syntastic'
 Plug 'scrooloose/nerdtree'
 Plug 'scrooloose/nerdcommenter'
 Plug 'w0rp/ale'
