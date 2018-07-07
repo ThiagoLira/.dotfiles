@@ -23,7 +23,7 @@ endif
 call plug#begin('~/.config/nvim/plugged')
 
 
-
+Plug 'sheerun/vim-polyglot'
 Plug 'flazz/vim-colorschemes'
 Plug 'nvie/vim-flake8'
 Plug 'kien/ctrlp.vim'
