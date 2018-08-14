@@ -33,6 +33,23 @@ setw -g pane-base-index 1
 #### Key Bindings ####
 ######################
 
+
+# Smart pane switching with awareness of Vim splits.
+# See: https://github.com/christoomey/vim-tmux-navigator
+is_vim="ps -o state= -o comm= -t '#{pane_tty}' \
+    | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|n?vim?x?)(diff)?$'"
+bind-key -n C-h if-shell "$is_vim" "send-keys C-h"  "select-pane -L"
+bind-key -n C-j if-shell "$is_vim" "send-keys C-j"  "select-pane -D"
+bind-key -n C-k if-shell "$is_vim" "send-keys C-k"  "select-pane -U"
+bind-key -n C-l if-shell "$is_vim" "send-keys C-l"  "select-pane -R"
+bind-key -n C-\ if-shell "$is_vim" "send-keys C-\\" "select-pane -l"
+bind-key -T copy-mode-vi C-h select-pane -L
+bind-key -T copy-mode-vi C-j select-pane -D
+bind-key -T copy-mode-vi C-k select-pane -U
+bind-key -T copy-mode-vi C-l select-pane -R
+bind-key -T copy-mode-vi C-\ select-pane -l
+
+
 # reload config file
 bind r source-file ~/.tmux.conf \; display "Config Reloaded!"
 
@@ -43,11 +60,12 @@ bind - split-window -v -c "#{pane_current_path}"
 # synchronize all panes in a window
 bind y setw synchronize-panes
 
+# I commented that as im now using that fancy plugin above to take care of that
 # pane movement shortcuts
-bind h select-pane -L
-bind j select-pane -D
-bind k select-pane -U
-bind l select-pane -R
+# bind h select-pane -L
+# bind j select-pane -D
+# bind k select-pane -U
+# bind l select-pane -R
 
 bind -r C-h select-window -t :-
 bind -r C-l select-window -t :+
@@ -62,7 +80,7 @@ bind -r L resize-pane -R 10
 # NOTE: This breaks selecting/copying text on OSX
 # To select text as expected, hold Option to disable it (iTerm2)
 setw -g mouse on
-set -g mouse-utf8 off
+# set -g mouse-utf8 off
 
 # set vi mode for copy mode
 setw -g mode-keys vi
@@ -81,8 +99,6 @@ run -b 'tmux bind -t vi-copy Escape cancel 2> /dev/null || true'
 run -b 'tmux bind -T copy-mode-vi Escape send -X cancel 2> /dev/null || true'
 run -b 'tmux bind -t vi-copy H start-of-line 2> /dev/null || true'
 run -b 'tmux bind -T copy-mode-vi L send -X end-of-line 2> /dev/null || true'
-
-
 
 ##############################
 ### Color & Style Settings ###

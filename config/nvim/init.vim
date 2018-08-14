@@ -31,7 +31,7 @@ Plug 'scrooloose/nerdtree'
 Plug 'scrooloose/nerdcommenter'
 Plug 'w0rp/ale'
 Plug 'tpope/vim-surround'
-
+Plug 'christoomey/vim-tmux-navigator'
 " DEOPLETE STUFF
 if has('nvim')
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -66,7 +66,6 @@ set listchars=tab:▸\ ,trail:▫
 
 syntax enable           " enable syntax processing
 set nocompatible
-colorscheme badwolf
 set shell=/bin/bash
 
 set history=1000         " remember more commands and search history
@@ -77,6 +76,7 @@ set visualbell           " don't beep
 set noerrorbells         " don't beep
 
 
+colorscheme Monokai
 
 if &term =~ '256color'
   " disable Background Color Erase (BCE) so that color schemes
@@ -86,16 +86,25 @@ if &term =~ '256color'
 endif
 
 
+let mapleader=','
 
+" nerdtree config
 map <C-n> :NERDTreeToggle<CR>
+let NERDTreeMinimalUI = 1
+let NERDTreeDirArrows = 1
+let NERDTreeAutoDeleteBuffer = 1
+nnoremap <silent> <Leader>f :NERDTreeFind<CR>
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
-"flake8 python check every time writes on a python file
+
+
 autocmd BufWritePost *.py call Flake8()
 
+" Open new split panes to right and bottom, which feels more natural
+set splitbelow
+set splitright
 
-
-
-let mapleader=','
 
 nmap <c-j> <c-w>j
 nmap <c-k> <c-w>k
@@ -113,17 +122,15 @@ map = <C-W>+
 
 "add relative numbering"
 set number relativenumber
-" set !number !relativenumber
-
 
 
 set mouse=a
 
 
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
+
+" Switch between the last two files
+nnoremap <Leader><Leader> <C-^>
 
 
-colorscheme Monokai
 "Remove all trailing whitespace by pressing F5
 nnoremap <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
