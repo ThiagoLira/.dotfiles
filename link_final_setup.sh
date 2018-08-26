@@ -55,8 +55,9 @@ ln -s $DOTFILES/config/nvim ~/.vim
 ln -s $DOTFILES/config/nvim/init.vim ~/.vimrc   
 
 
-
-
+echo "Creating Spacemacs symlimk"
+echo "=============================="
+ln -s $DOTFILES/emacs/spacemacs ~/.spacemacs
 
 
 # now we run nvim and vim to install the plugins
