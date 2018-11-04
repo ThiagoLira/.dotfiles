@@ -35,3 +35,5 @@ source ~/.config/fish/functions/z.fish
 
 #source (conda info --root)/etc/fish/conf.d/conda.fish
 
+
+test -s /home/thiago/.nvm-fish/nvm.fish; and source /home/thiago/.nvm-fish/nvm.fish
