@@ -352,6 +352,7 @@ you should place your code here."
      '((ipython . t)
        (ein . t)
        (shell . t)
+       (clojure . t)
      )))
 )
 
