@@ -28,6 +28,19 @@
   :config
   (evil-mode 1))
 
+;; Evil Config 
+(setq evil-emacs-state-cursor '("red" box))
+(setq evil-normal-state-cursor '("green" box))
+(setq evil-visual-state-cursor '("orange" box))
+(setq evil-insert-state-cursor '("red" bar))
+(setq evil-replace-state-cursor '("red" bar))
+(setq evil-operator-state-cursor '("red" hollow))
+
+;; Relative line numbers 
+(add-hook 'prog-mode-hook 'relative-line-numbers-mode t)
+(add-hook 'prog-mode-hook 'line-number-mode t)
+(add-hook 'prog-mode-hook 'column-number-mode t)
+
 ;; Theme
 (use-package doom-themes
   :ensure t
@@ -61,6 +74,10 @@
   (setq projectile-require-project-root nil)
   :config
   (projectile-mode 1))
+
+
+(use-package relative-line-numbers
+  :ensure t)
 
 ;; Helm Projectile
 (use-package helm-projectile
