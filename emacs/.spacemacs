@@ -326,6 +326,7 @@ explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
  (setq find-file-visit-truename t)
+	(setq vc-follow-symlinks t)  
   (if (eq system-type 'darwin)
       ;; stuff to compile pdf-tools on Mac
       (setenv "PKG_CONFIG_PATH"
