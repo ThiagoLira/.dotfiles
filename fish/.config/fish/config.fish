@@ -3,6 +3,8 @@ set -q XDG_DATA_HOME
 and set -gx OMF_PATH "$XDG_DATA_HOME/omf"
 or set -gx OMF_PATH "$HOME/.local/share/omf"
 
+set -gx PATH  ~/bin  $PATH
+
 # Customize Oh My Fish configuration path.
 set -gx OMF_CONFIG '/home/thiago/.dotfiles/config/omf'
 
