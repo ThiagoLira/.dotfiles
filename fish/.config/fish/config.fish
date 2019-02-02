@@ -1,16 +1,14 @@
-# Path to Oh My Fish install.
-set -q XDG_DATA_HOME
-and set -gx OMF_PATH "$XDG_DATA_HOME/omf"
-or set -gx OMF_PATH "$HOME/.local/share/omf"
-
 set -gx PATH  ~/bin  $PATH
 
-# Customize Oh My Fish configuration path.
-set -gx OMF_CONFIG '/home/thiago/.dotfiles/config/omf'
 
-# Load Oh My Fish configuration.
-# source $OMF_PATH/init.fish
+# multiple emacs
 
+alias emacs2='emacs -q -l ~/.emacs2.d/init.el'
+
+
+# easily ls dot repositories
+
+alias lsa="ls -a"
 
 # Readline colors
 set -g fish_color_autosuggestion 555 yellow
@@ -35,7 +33,4 @@ set -g fish_color_valid_path --underline
 
 source ~/.config/fish/functions/z.fish
 
-#source (conda info --root)/etc/fish/conf.d/conda.fish
 
-
-test -s /home/thiago/.nvm-fish/nvm.fish; and source /home/thiago/.nvm-fish/nvm.fish
