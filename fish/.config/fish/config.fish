@@ -3,8 +3,8 @@ set -gx PATH  ~/bin  $PATH
 
 # multiple emacs
 
-alias emacs2='emacs -q -l ~/.emacs2.d/init.el'
 
+alias emacs2 'emacs -q -l ~/.emacs2.d/init.el'
 
 # easily ls dot repositories
 

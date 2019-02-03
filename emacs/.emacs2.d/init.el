@@ -1,143 +1,87 @@
-
 (setq user-emacs-directory "~/.emacs2.d/")
-;;(add-to-list 'default-frame-alist '(font . "mononoki-12"))
-(add-to-list 'default-frame-alist '(height . 24))
-(add-to-list 'default-frame-alist '(width . 80))
+
+(setq gc-cons-threshold (* 800 1024))
+
+(defconst emacs-start-time (current-time))
+
+(unless noninteractive
+  (message "Loading %s..." load-file-name))
+
+(setenv "INSIDE_EMACS" "true")
+
+;; Make sure package.el doesn't get a chance to load anything.
+(setq package-enable-at-startup nil)
+
+
 ;; Minimal UI
 (scroll-bar-mode -1)
 (tool-bar-mode   -1)
 (tooltip-mode    -1)
 (menu-bar-mode   -1)
-;; Package configs
-(require 'package)
-(package-initialize)
-(setq package-enable-at-startup nil)
-(setq package-archives '(("org"   . "http://orgmode.org/elpa/")
-                         ("gnu"   . "http://elpa.gnu.org/packages/")
-                         ("melpa" . "https://melpa.org/packages/")))
-
-;; Bootstrap `use-package`
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-(require 'use-package)
-
-;; Vim mode
-(use-package evil
-  :ensure t
-  :config
-  (evil-mode 1))
-
-;; Evil Config 
-(setq evil-emacs-state-cursor '("red" box))
-(setq evil-normal-state-cursor '("green" box))
-(setq evil-visual-state-cursor '("orange" box))
-(setq evil-insert-state-cursor '("red" bar))
-(setq evil-replace-state-cursor '("red" bar))
-(setq evil-operator-state-cursor '("red" hollow))
-
-;; Relative line numbers 
-(add-hook 'prog-mode-hook 'relative-line-numbers-mode t)
-(add-hook 'prog-mode-hook 'line-number-mode t)
-(add-hook 'prog-mode-hook 'column-number-mode t)
-
-;; Theme
-(use-package doom-themes
-  :ensure t
-  :config
-  (load-theme 'doom-one t))
-;; Helm
-(use-package helm
-  :ensure t
-  :init
-  (setq helm-M-x-fuzzy-match t
-  helm-mode-fuzzy-match t
-  helm-buffers-fuzzy-matching t
-  helm-recentf-fuzzy-match t
-  helm-locate-fuzzy-match t
-  helm-semantic-fuzzy-match t
-  helm-imenu-fuzzy-match t
-  helm-completion-in-region-fuzzy-match t
-  helm-candidate-number-list 150
-  helm-split-window-in-side-p t
-  helm-move-to-line-cycle-in-source t
-  helm-echo-input-in-header-line t
-  helm-autoresize-max-height 0
-  helm-autoresize-min-height 20)
-  :config
-  (helm-mode 1))
-
-;; Projectile
-(use-package projectile
-  :ensure t
-  :init
-  (setq projectile-require-project-root nil)
-  :config
-  (projectile-mode 1))
 
 
-(use-package relative-line-numbers
-  :ensure t)
+;; straight.el
 
-;; Helm Projectile
-(use-package helm-projectile
-  :ensure t
-  :init
-  (setq helm-projectile-fuzzy-match t)
-  :config
-  (helm-projectile-on))
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
-;; Which Key
-(use-package which-key
-  :ensure t
-  :init
-  (setq which-key-separator " ")
-  (setq which-key-prefix-prefix "+")
-  :config
-  (which-key-mode 1))
+;; use-package
+(straight-use-package 'use-package)
 
-;; NeoTree
-(use-package neotree
-  :ensure t
-  :init
-  (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
+(eval-when-compile
+  (require 'use-package))
 
-(defun reload-dotemacs-file ()
-  "reload your .emacs file without restarting Emacs"
-  (interactive)
-  (load-file "~/.emacs2.d/init.el"))
+;; Install some basic packages
 
-;; Custom keybinding
-(use-package general
-  :ensure t
-  :config (general-define-key
-  :states '(normal visual insert emacs)
-  :prefix "SPC"
-  :non-normal-prefix "M-SPC"
-  "/"   '(helm-projectile-rg :which-key "ripgrep")
-  "TAB" '(switch-to-prev-buffer :which-key "previous buffer")
-  "SPC" '(helm-M-x :which-key "M-x")
-  "pf"  '(helm-projectile-find-file :which-key "find files")
-  "pp"  '(helm-projectile-switch-project :which-key "switch project")
-  "pb"  '(helm-projectile-switch-to-buffer :which-key "switch buffer")
-  "pr"  '(helm-show-kill-ring :which-key "show kill ring")
-  "feR"  '(reload-dotemacs-file :which-key "reload dotfile")
-  ;; Buffers
-  "bb"  '(helm-mini :which-key "buffers list")
-  ;; Window
-  "wl"  '(windmove-right :which-key "move right")
-  "wh"  '(windmove-left :which-key "move left")
-  "wk"  '(windmove-up :which-key "move up")
-  "wj"  '(windmove-down :which-key "move bottom")
-  "w/"  '(split-window-right :which-key "split right")
-  "w-"  '(split-window-below :which-key "split bottom")
-  "wd"  '(delete-window :which-key "delete window")
-  "qz"  '(delete-frame :which-key "delete frame")
-  "qq"  '(kill-emacs :which-key "quit")
-  ;; NeoTree
-  "ft"  '(neotree-toggle :which-key "toggle neotree")
-  "ff"  '(helm-find-files :which-key "find files")
-  "fs"  '(save-buffer :which-key "save file")
-  ;; Others
-  "at"  '(ansi-term :which-key "open terminal")
-));; Custom keybinding
+(straight-use-package 'dash)
+(straight-use-package 'dash-functional)
+(straight-use-package 'f)
+(straight-use-package 's)
+(straight-use-package 'noflet)
+(straight-use-package 'memoize)
+(straight-use-package 'general)
+(straight-use-package 'el-patch)
+
+(defconst paths-config-directory
+  (concat user-emacs-directory "config"))
+
+(defconst paths-lisp-directory
+  (concat user-emacs-directory "lisp"))
+
+
+
+(require 'f)
+(require 'seq)
+
+(defun init-load-paths (&optional interactive-p)
+  (interactive "p")
+  (let* ((before load-path)
+         (main-dirs
+          (list paths-lisp-directory
+                paths-config-directory                
+                ))
+         (subdirs
+          (f-directories paths-lisp-directory))
+         (updated-load-path
+          (seq-filter #'file-directory-p (seq-uniq (append main-dirs subdirs load-path)))))
+
+    (setq load-path updated-load-path)
+    (when interactive-p
+      (if-let (added (seq-difference load-path before))
+          (message "Load path updated. Added: %S" added)
+        (message "No change to load-path")))))
+
+
+
+(init-load-paths)
+
