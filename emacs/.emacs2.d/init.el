@@ -1,5 +1,5 @@
 (setq user-emacs-directory "~/.emacs2.d/")
- 
+
 (setq gc-cons-threshold (* 800 1024))
 
 (defconst emacs-start-time (current-time))
@@ -51,12 +51,8 @@
 (straight-use-package 'memoize)
 (straight-use-package 'general)
 (straight-use-package 'el-patch)
+(straight-use-package 'which-key)
 
-
-(use-package major-mode-hydra
-  :straight t
-  :bind 
-  ("," . major-mode-hydra))
 
 
 
@@ -76,7 +72,7 @@
   (let* ((before load-path)
          (main-dirs
           (list paths-lisp-directory
-                paths-config-directory                
+                paths-config-directory
                 ))
          (subdirs
           (f-directories paths-lisp-directory))
@@ -93,5 +89,9 @@
 
 (init-load-paths)
 
-
+;;Evil
+(use-package th-evil)
+;;Hydras
+(use-package th-hydras)
+;;Languages
 (use-package th-elisp)

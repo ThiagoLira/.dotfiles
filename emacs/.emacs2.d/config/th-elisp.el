@@ -2,10 +2,10 @@
   (require 'use-package))
 
 (major-mode-hydra-bind emacs-lisp-mode "Eval"
-  ("e" eval-last-sexp "sexp")
-  ("b" eval-buffer "buffer")
-  ("d" eval-defun "defun")
-  ("r" eval-region "region"))
+  ("ee" eval-last-sexp "sexp")
+  ("eb" eval-buffer "buffer")
+  ("ed" eval-defun "defun")
+  ("er" eval-region "region"))
 
 
 (provide 'th-elisp)
