@@ -1,5 +1,5 @@
 (setq user-emacs-directory "~/.emacs2.d/")
-
+ 
 (setq gc-cons-threshold (* 800 1024))
 
 (defconst emacs-start-time (current-time))
@@ -52,6 +52,14 @@
 (straight-use-package 'general)
 (straight-use-package 'el-patch)
 
+
+(use-package major-mode-hydra
+  :straight t
+  :bind 
+  ("," . major-mode-hydra))
+
+
+
 (defconst paths-config-directory
   (concat user-emacs-directory "config"))
 
@@ -85,3 +93,5 @@
 
 (init-load-paths)
 
+
+(use-package th-elisp)
