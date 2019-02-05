@@ -12,7 +12,6 @@
 
 
 (use-package major-mode-hydra
-  :straight t
   :config
   (with-eval-after-load 'evil
     (evil-global-set-key 'motion (kbd ",") #'major-mode-hydra)
