@@ -3,6 +3,13 @@
 
 
 (require 'general)
+(setq general-override-mode 1)
+
+
+(require 'which-key)
+(which-key-mode)
+
+
 
 (use-package major-mode-hydra
   :straight t
@@ -17,12 +24,25 @@
  :non-normal-prefix "C-SPC"
 
  ;; simple command
- "'"   '(iterm-focus :which-key "iterm")
- "?"   '(iterm-goto-filedir-or-home :which-key "iterm - goto dir")
- "/"   'counsel-ag
- "TAB" '(switch-to-other-buffer :which-key "prev buffer")
- "SPC" '(avy-goto-word-or-subword-1  :which-key "go to char")
+    "'"   '(iterm-focus :which-key "iterm")
+    "?"   '(iterm-goto-filedir-or-home :which-key "iterm - goto dir")
+    "/"   'counsel-ag
+    "TAB" '(switch-to-other-buffer :which-key "prev buffer")
+    "SPC" 'counsel-M-x
+ ;; Buffer operations
+    "b"   '(:ignore t :which-key "buffer")
+    "bb"  'mode-line-other-buffer
+    "bd"  'kill-this-buffer
+    "b]"  'next-buffer
+    "b["  'previous-buffer
+    "bq"  'kill-buffer-and-window
+    "bR"  'rename-file-and-buffer
+    "br"  'revert-buffer
 
+ ;; bind to double key press
+  "ff"  'counsel-find-file  ; find file using ivy
+  "fr"	'counsel-recentf    ; find recently edited files
+  "pf"  'counsel-git        ; find file in git project
  ;; Applications
  "a" '(:ignore t :which-key "Applications")
  "ar" 'ranger

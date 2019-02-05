@@ -49,11 +49,12 @@
 (straight-use-package 's)
 (straight-use-package 'noflet)
 (straight-use-package 'memoize)
-(straight-use-package 'general)
 (straight-use-package 'el-patch)
+(straight-use-package 'ivy)
+(straight-use-package 'counsel)
+(straight-use-package 'swiper)
+(straight-use-package 'general)
 (straight-use-package 'which-key)
-
-
 
 
 (defconst paths-config-directory
