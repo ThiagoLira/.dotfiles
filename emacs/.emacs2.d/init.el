@@ -64,6 +64,20 @@
 (use-package hydra
   :ensure t)
 
+;; THEME AND GUI
+
+
+(use-package cyberpunk-theme
+  :ensure t)
+
+(add-hook 'after-init-hook 
+	  (lambda ()
+	   (load-theme 'cyberpunk t)))
+
+
+;; EVIL MODE
+
+
 (declare-function evil-delay "evil-common")
 (declare-function evil-set-initial-state "evil-core")
 
