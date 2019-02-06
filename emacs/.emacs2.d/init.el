@@ -10,6 +10,34 @@
 (setenv "INSIDE_EMACS" "true")
 
 
+;; better defaults
+
+(setq
+ ad-redefinition-action 'accept                   ; Silence warnings for redefinition
+ cursor-in-non-selected-windows t                 ; Hide the cursor in inactive windows
+ display-time-default-load-average nil            ; Don't display load average
+ fill-column 80                                   ; Set width for automatic line breaks
+ help-window-select t                             ; Focus new help windows when opened
+ inhibit-startup-screen t                         ; Disable start-up screen
+ initial-scratch-message ""                       ; Empty the initial *scratch* buffer
+ kill-ring-max 128                                ; Maximum length of kill ring
+ load-prefer-newer t                              ; Prefers the newest version of a file
+ mark-ring-max 128                                ; Maximum length of mark ring
+ scroll-conservatively most-positive-fixnum       ; Always scroll by one line
+ select-enable-clipboard t                        ; Merge system's and Emacs' clipboard
+ tab-width 4                                      ; Set width for tabs
+ use-package-always-ensure t                      ; Avoid the :ensure keyword for each package
+ user-full-name "Thiago Lira"                     ; Set the full name of the current user
+ user-mail-address "thlira15@gmail.com"           ; Set the email address of the current user
+ vc-follow-symlinks t                             ; Always follow the symlinks
+ view-read-only t)                                ; Always open read-only buffers in view-mode
+(column-number-mode 1)                            ; Show the column number
+(display-time-mode 1)                             ; Enable time in the mode-line
+(fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
+(global-hl-line-mode)                             ; Hightlight current line
+(set-default-coding-systems 'utf-8)               ; Default to utf-8 encoding
+(show-paren-mode 1)                               ; Show the parent
+
 ;; Minimal UI
 (scroll-bar-mode -1)
 (tool-bar-mode   -1)
@@ -328,12 +356,15 @@
 
 (defhydra hydra-window (:color red
                         :hint nil)
-  "
- Split: _v_ert _x_:horz
-Delete: _o_nly  _da_ce  _dw_indow  _db_uffer  _df_rame
-  Move: _s_wap
-Frames: _f_rame new  _df_ delete
-  Misc: _m_ark _a_ce  _u_ndo  _r_edo"
+"
+  
+^Move^             ^Split^           ^Delete          
+^^^^^^^^------------------------------------------------
+_h_: mark          _|_: unmark        _x_: execute       
+_j_: save          _-_: unmark up     _k_: bury          
+_l_: delete        ^ ^                ^ ^       
+_k_: delete up     ^ ^                ^ ^  
+"
   ("h" windmove-left)
   ("j" windmove-down)
   ("k" windmove-up)
@@ -346,29 +377,20 @@ Frames: _f_rame new  _df_ delete
          (interactive)
          (split-window-right)
          (windmove-right)))
-  ("_" (lambda ()
+  ("-" (lambda ()
          (interactive)
          (split-window-below)
          (windmove-down)))
-  ("v" split-window-right)
-  ("x" split-window-below)
-  ;("t" transpose-frame "'")
-  ;; winner-mode must be enabled
-  ("u" winner-undo)
-  ("r" winner-redo) ;;Fixme, not working?
   ("o" delete-other-windows :exit t)
   ("a" ace-window :exit t)
   ("f" new-frame :exit t)
   ("s" ace-swap-window)
   ("da" ace-delete-window)
-  ("dw" delete-window)
-  ("db" kill-this-buffer)
-  ("df" delete-frame :exit t)
+  ("w" delete-window)
+  ("b" kill-this-buffer)
+  ("x" delete-frame :exit t)
   ("q" nil)
-  ;("i" ace-maximize-window "ace-one" :color blue)
-  ;("b" ido-switch-buffer "buf")
-  ("m" headlong-bookmark-jump))
-
+)
 
 (defhydra hydra-zoom (:color green)
   "zoom"
