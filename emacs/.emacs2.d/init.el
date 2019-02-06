@@ -2,13 +2,8 @@
 
 (setq gc-cons-threshold (* 800 1024))
 
-(defconst emacs-start-time (current-time))
-
 (unless noninteractive
   (message "Loading %s..." load-file-name))
-
-(setenv "INSIDE_EMACS" "true")
-
 
 ;; better defaults
 
@@ -30,6 +25,7 @@
  user-full-name "Thiago Lira"                     ; Set the full name of the current user
  user-mail-address "thlira15@gmail.com"           ; Set the email address of the current user
  vc-follow-symlinks t                             ; Always follow the symlinks
+ find-file-visit-truename t
  view-read-only t)                                ; Always open read-only buffers in view-mode
 (column-number-mode 1)                            ; Show the column number
 (display-time-mode 1)                             ; Enable time in the mode-line
@@ -105,7 +101,12 @@
       :ensure t
       :hook (after-init . doom-modeline-mode))
 
-(load-theme 'doom-one)
+(defun use-default-theme()
+  (load-theme 'doom-one t))
+
+(use-default-theme)
+
+(doom-modeline-mode 1)
 
 ;; How tall the mode-line should be (only respected in GUI Emacs).
 (setq doom-modeline-height 25)
