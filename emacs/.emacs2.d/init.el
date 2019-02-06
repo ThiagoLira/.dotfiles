@@ -21,7 +21,7 @@
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/")
-             '("marmalade" . "http://marmalade-repo.org/packages/")
+	     '("melpa Stable" . "https://stable.melpa.org/packages/")
              )
 (package-initialize)
 ;; Bootstrap `use-package'
@@ -67,12 +67,23 @@
 ;; THEME AND GUI
 
 
-(use-package cyberpunk-theme
+(use-package all-the-icons
   :ensure t)
 
-(add-hook 'after-init-hook 
-	  (lambda ()
-	   (load-theme 'cyberpunk t)))
+(use-package doom-themes 
+  :ensure t)
+
+(use-package doom-modeline
+      :ensure t
+      :hook (after-init . doom-modeline-mode))
+
+(load-theme 'doom-one)
+
+;; How tall the mode-line should be (only respected in GUI Emacs).
+(setq doom-modeline-height 25)
+
+;; How wide the mode-line bar should be (only respected in GUI Emacs).
+(setq doom-modeline-bar-width 3)
 
 
 ;; EVIL MODE
