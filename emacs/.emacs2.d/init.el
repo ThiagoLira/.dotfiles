@@ -5,6 +5,8 @@
 (unless noninteractive
   (message "Loading %s..." load-file-name))
 
+(when (version<= "26.0.50" emacs-version )
+  (global-display-line-numbers-mode))
 ;; better defaults
 
 (setq
@@ -26,7 +28,10 @@
  user-mail-address "thlira15@gmail.com"           ; Set the email address of the current user
  vc-follow-symlinks t                             ; Always follow the symlinks
  find-file-visit-truename t
- view-read-only t)                                ; Always open read-only buffers in view-mode
+ view-read-only t
+ display-line-numbers-type 'relative
+ display-line-numbers-width-start t
+ )                                ; Always open read-only buffers in view-mode
 (column-number-mode 1)                            ; Show the column number
 (display-time-mode 1)                             ; Enable time in the mode-line
 (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
@@ -34,11 +39,18 @@
 (set-default-coding-systems 'utf-8)               ; Default to utf-8 encoding
 (show-paren-mode 1)                               ; Show the parent
 
+
+
+
 ;; Minimal UI
 (scroll-bar-mode -1)
 (tool-bar-mode   -1)
 (tooltip-mode    -1)
 (menu-bar-mode   -1)
+
+
+  
+
 
 ;; bootstrap use-package
 (require 'package)
@@ -86,6 +98,8 @@
   :config
   (which-key-mode 1))
 (use-package hydra
+  :ensure t)
+(use-package ace-window
   :ensure t)
 
 ;; THEME AND GUI
@@ -388,17 +402,15 @@ _k_: delete up     ^ ^                ^ ^
   ("|" (lambda ()
          (interactive)
          (split-window-right)
-         (windmove-right)))
+         (windmove-right)) :color blue)
   ("-" (lambda ()
          (interactive)
          (split-window-below)
-         (windmove-down)))
+         (windmove-down)) :color blue)
   ("o" delete-other-windows :exit t)
   ("a" ace-window :exit t)
   ("f" new-frame :exit t)
-  ("s" ace-swap-window)
-  ("da" ace-delete-window)
-  ("w" delete-window)
+  ("d" delete-window)
   ("b" kill-this-buffer)
   ("x" delete-frame :exit t)
   ("q" nil)
@@ -410,11 +422,35 @@ _k_: delete up     ^ ^                ^ ^
   ("l" text-scale-decrease "out"))
 
 
+;; ELISP
+
 (major-mode-hydra-bind emacs-lisp-mode "Eval"
                        ("ee" eval-last-sexp "sexp")
                        ("eb" eval-buffer "buffer")
                        ("ed" eval-defun "defun")
                        ("er" eval-region "region"))
 
+;; CLOJURE
+
+(use-package cider
+  :ensure t)
 
 
+(major-mode-hydra-bind clojure-mode "cider" 
+                        ("'" cider-jack-in "jack-in")
+			("sb" cider-load-buffer)
+			("sB" cider-send-buffer-in-repl-and-focus)
+			("sC" cider-find-and-clear-repl-output)
+			("se" cider-send-last-sexp-to-repl)
+			("sE" cider-send-last-sexp-to-repl-focus)
+			("sf" cider-send-function-to-repl)
+			("sF" cider-send-function-to-repl-focus)
+			("si" cider-jack-in)
+			("sI" cider-jack-in-clojurescript)
+			("sn" cider-send-ns-form-to-repl)
+			("sN" cider-send-ns-form-to-repl-focus)
+			("so" cider-repl-switch-to-other)
+			("sq" cider-quit)
+			("sr" cider-send-region-to-repl)
+			("sR" cider-send-region-to-repl-focus)
+			("q" nil))
