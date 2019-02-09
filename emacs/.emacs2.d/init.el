@@ -258,11 +258,6 @@
     (evil-ex-define-cmd "nospell" #'config-evil-flyspell-off)
     (evil-ex-define-cmd "spell" #'config-evil-flyspell-on)
 
-    ;; Better compat with smartparens-strict mode.
-    ;; TODO: Move to SP config.
-
-    (advice-add #'evil-delete-backward-char-and-join
-                :around #'config-evil--sp-delete-and-join-compat)))
 
 
 (use-package evil-surround
@@ -452,7 +447,9 @@ _k_: delete up     ^ ^                ^ ^
 ;; CLOJURE
 
 (use-package cider
-  :ensure t)
+  :ensure t
+  ;; :mode ("\\.clj\\'" . clojure-mode)
+  )
 
 
 (major-mode-hydra-bind clojure-mode "cider" 
@@ -476,9 +473,10 @@ _k_: delete up     ^ ^                ^ ^
 ;; HASKELL
 
 
-(use-package haskel-mode
+(use-package haskell-mode
   :ensure t
-  :defer t)
+  :defer t
+ )
 
 
 ;; https://github.com/serras/emacs-haskell-tutorial/blob/master/tutorial.md
