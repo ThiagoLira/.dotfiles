@@ -422,6 +422,25 @@ _k_: delete up     ^ ^                ^ ^
   ("l" text-scale-decrease "out"))
 
 
+
+;; COMPLETION
+
+
+(use-package company
+  :ensure t)
+
+(add-hook 'after-init-hook 'global-company-mode)
+
+
+;; ERROR CHECKING
+
+
+(use-package flycheck
+  :ensure t)
+
+(add-hook 'after-init-hook #'global-flycheck-mode)
+
+
 ;; ELISP
 
 (major-mode-hydra-bind emacs-lisp-mode "Eval"
@@ -445,8 +464,6 @@ _k_: delete up     ^ ^                ^ ^
 			("sE" cider-send-last-sexp-to-repl-focus)
 			("sf" cider-send-function-to-repl)
 			("sF" cider-send-function-to-repl-focus)
-			("si" cider-jack-in)
-			("sI" cider-jack-in-clojurescript)
 			("sn" cider-send-ns-form-to-repl)
 			("sN" cider-send-ns-form-to-repl-focus)
 			("so" cider-repl-switch-to-other)
@@ -454,3 +471,19 @@ _k_: delete up     ^ ^                ^ ^
 			("sr" cider-send-region-to-repl)
 			("sR" cider-send-region-to-repl-focus)
 			("q" nil))
+
+
+;; HASKELL
+
+
+(use-package haskel-mode
+  :ensure t
+  :defer t)
+
+
+;; https://github.com/serras/emacs-haskell-tutorial/blob/master/tutorial.md
+(let ((my-cabal-path (expand-file-name "~/.cabal/bin")))
+  (setenv "PATH" (concat my-cabal-path path-separator (getenv "PATH")))
+  (add-to-list 'exec-path my-cabal-path))
+
+(custom-set-variables '(haskell-tags-on-save t))
