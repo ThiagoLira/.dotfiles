@@ -256,7 +256,7 @@
     ;; Add ex commands for controlling spellcheck.
 
     (evil-ex-define-cmd "nospell" #'config-evil-flyspell-off)
-    (evil-ex-define-cmd "spell" #'config-evil-flyspell-on)
+    (evil-ex-define-cmd "spell" #'config-evil-flyspell-on)))
 
 
 
@@ -451,6 +451,104 @@ _k_: delete up     ^ ^                ^ ^
   ;; :mode ("\\.clj\\'" . clojure-mode)
   )
 
+
+(defun clojure/fancify-symbols (mode)
+  "Pretty symbols for Clojure's anonymous functions and sets,
+   like (λ [a] (+ a 5)), ƒ(+ % 5), and ∈{2 4 6}."
+  (font-lock-add-keywords mode
+    `(("(\\(fn\\)[[[:space:]]"
+       (0 (progn (compose-region (match-beginning 1)
+                                 (match-end 1) "λ")
+                 nil)))
+      ("(\\(partial\\)[[[:space:]]"
+       (0 (progn (compose-region (match-beginning 1)
+                                 (match-end 1) "Ƥ")
+                 nil)))
+      ("(\\(comp\\)[[[:space:]]"
+       (0 (progn (compose-region (match-beginning 1)
+                                 (match-end 1) "∘")
+                 nil)))
+      ("\\(#\\)("
+       (0 (progn (compose-region (match-beginning 1)
+                                 (match-end 1) "ƒ")
+                 nil)))
+      ("\\(#\\){"
+       (0 (progn (compose-region (match-beginning 1)
+                                 (match-end 1) "∈")
+                 nil))))))
+
+(defun cider-eval-in-repl-no-focus (form)
+  "Insert FORM in the REPL buffer and eval it."
+  (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" form)
+    (setq form (replace-match "" t t form)))
+  (with-current-buffer (cider-current-connection)
+    (let ((pt-max (point-max)))
+      (goto-char pt-max)
+      (insert form)
+      (indent-region pt-max (point))
+      (cider-repl-return))))
+
+(defun cider-send-last-sexp-to-repl ()
+  "Send last sexp to REPL and evaluate it without changing
+the focus."
+  (interactive)
+  (cider-eval-in-repl-no-focus (cider-last-sexp)))
+
+(defun cider-send-last-sexp-to-repl-focus ()
+  "Send last sexp to REPL and evaluate it and switch to the REPL in
+`insert state'."
+  (interactive)
+  (cider-insert-last-sexp-in-repl t)
+  (evil-insert-state))
+
+(defun cider-send-region-to-repl (start end)
+  "Send region to REPL and evaluate it without changing
+the focus."
+  (interactive "r")
+  (cider-eval-in-repl-no-focus
+   (buffer-substring-no-properties start end)))
+
+(defun cider-send-region-to-repl-focus (start end)
+  "Send region to REPL and evaluate it and switch to the REPL in
+`insert state'."
+  (interactive "r")
+  (cider-insert-in-repl
+   (buffer-substring-no-properties start end) t)
+  (evil-insert-state))
+
+(defun cider-send-function-to-repl ()
+  "Send current function to REPL and evaluate it without changing
+the focus."
+  (interactive)
+  (/cider-eval-in-repl-no-focus (cider-defun-at-point)))
+
+(defun cider-send-function-to-repl-focus ()
+  "Send current function to REPL and evaluate it and switch to the REPL in
+`insert state'."
+  (interactive)
+  (cider-insert-defun-in-repl t)
+  (evil-insert-state))
+
+(defun cider-send-ns-form-to-repl ()
+  "Send buffer's ns form to REPL and evaluate it without changing
+the focus."
+  (interactive)
+  (cider-eval-in-repl-no-focus (cider-ns-form)))
+
+(defun cider-send-ns-form-to-repl-focus ()
+  "Send ns form to REPL and evaluate it and switch to the REPL in
+`insert state'."
+  (interactive)
+  (cider-insert-ns-form-in-repl t)
+  (evil-insert-state))
+
+(defun cider-send-buffer-in-repl-and-focus ()
+  "Send the current buffer in the REPL and switch to the REPL in
+`insert state'."
+  (interactive)
+  (cider-load-buffer)
+  (cider-switch-to-repl-buffer)
+  (evil-insert-state))
 
 (major-mode-hydra-bind clojure-mode "cider" 
                         ("'" cider-jack-in "jack-in")
