@@ -7,8 +7,40 @@
 
 (when (version<= "26.0.50" emacs-version )
   (global-display-line-numbers-mode))
-;; better defaults
 
+
+
+
+(setq init-message
+"                                                                
+ |  _ \                                                                   
+ | |_) |  ___   _ __  __ _                                                
+ |  _ <  / _ \ | '__|/ _` |                                               
+ | |_) || (_) || |  | (_| |                                               
+ |____/  \___/ |_|   \__,_|                                               
+   _____            _                                                     
+  / ____|          | |                                                    
+ | |      ___    __| |  __ _  _ __                                        
+ | |     / _ \  / _` | / _` || '__|                                       
+ | |____| (_) || (_| || (_| || |                                          
+  \_____|\___/  \__,_| \__,_||_|                                          
+  _    _                                                        _         
+ | |  | |                                                      | |        
+ | |  | | _ __ ___    __ _  ___   _ __    __ _  _ __  __ _   __| |  __ _  
+ | |  | || '_ ` _ \  / _` |/ __| | '_ \  / _` || '__|/ _` | / _` | / _` | 
+ | |__| || | | | | || (_| |\__ \ | |_) || (_| || |  | (_| || (_| || (_| | 
+  \____/ |_| |_| |_| \__,_||___/ | .__/  \__,_||_|   \__,_| \__,_| \__,_| 
+  __  __                     _   | |                                      
+ |  \/  |                   | |  |_|                                      
+ | \  / |  __ _   ___  __ _ | |__   _ __  __ _                            
+ | |\/| | / _` | / __|/ _` || '_ \ | '__|/ _` |                           
+ | |  | || (_| || (__| (_| || |_) || |  | (_| |                           
+ |_|  |_| \__,_| \___|\__,_||_.__/ |_|   \__,_|"
+
+)
+
+
+;; better defaults
 (setq
  ad-redefinition-action 'accept                   ; Silence warnings for redefinition
  cursor-in-non-selected-windows t                 ; Hide the cursor in inactive windows
@@ -16,7 +48,7 @@
  fill-column 80                                   ; Set width for automatic line breaks
  help-window-select t                             ; Focus new help windows when opened
  inhibit-startup-screen t                         ; Disable start-up screen
- initial-scratch-message ""                       ; Empty the initial *scratch* buffer
+ initial-scratch-message init-message                       ; Empty the initial *scratch* buffer
  kill-ring-max 128                                ; Maximum length of kill ring
  load-prefer-newer t                              ; Prefers the newest version of a file
  mark-ring-max 128                                ; Maximum length of mark ring
@@ -108,19 +140,28 @@
 (use-package all-the-icons
   :ensure t)
 
-(use-package doom-themes 
+(use-package doom-themes
   :ensure t)
 
 (use-package doom-modeline
       :ensure t
       :hook (after-init . doom-modeline-mode))
 
+
+
+
+
 (defun use-default-theme()
+  "Load a theme."
   (load-theme 'doom-one t))
 
-(use-default-theme)
 
+(use-default-theme)
 (doom-modeline-mode 1)
+
+
+(add-hook 'after-init-hook 'use-defaut-theme)
+
 
 ;; How tall the mode-line should be (only respected in GUI Emacs).
 (setq doom-modeline-height 25)
@@ -341,6 +382,13 @@
 
 
 
+(defun er-switch-to-previous-buffer ()
+  "Switch to previously open buffer.
+Repeated invocations toggle between the two most recently open buffers."
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+
+
 (general-define-key
  :states '(normal visual insert emacs)
  :prefix "SPC"
@@ -350,7 +398,7 @@
     "'"   '(iterm-focus :which-key "iterm")
     "?"   '(iterm-goto-filedir-or-home :which-key "iterm - goto dir")
     "/"   'counsel-ag
-    "TAB" '(switch-to-other-buffer :which-key "prev buffer")
+    "TAB" '(er-switch-to-previous-buffer :which-key "prev buffer")
     "SPC" 'counsel-M-x
  ;; Buffer operations
     "b"   '(:ignore t :which-key "buffer")
@@ -404,7 +452,7 @@ _k_: delete up     ^ ^                ^ ^
          (windmove-down)) :color blue)
   ("o" delete-other-windows :exit t)
   ("a" ace-window :exit t)
-  ("f" new-frame :exit t)
+  ("f" make-frame :exit t)
   ("d" delete-window)
   ("b" kill-this-buffer)
   ("x" delete-frame :exit t)
@@ -422,20 +470,23 @@ _k_: delete up     ^ ^                ^ ^
 
 
 (use-package company
-  :ensure t)
+  :ensure t
+  :hook (after-init . global-company-mode))
 
-(add-hook 'after-init-hook 'global-company-mode)
+
 
 
 ;; ERROR CHECKING
 
 
 (use-package flycheck
-  :ensure t)
+  :ensure t
+  :hook (after-init . global-flycheck-mode))
 
-(add-hook 'after-init-hook #'global-flycheck-mode)
 
 
+
+ 
 ;; ELISP
 
 (major-mode-hydra-bind emacs-lisp-mode "Eval"
@@ -476,6 +527,27 @@ _k_: delete up     ^ ^                ^ ^
        (0 (progn (compose-region (match-beginning 1)
                                  (match-end 1) "∈")
                  nil))))))
+
+
+
+;; Change to nil to disable FANCYFICATION of symbols
+(setq clojure-enable-fancify-symbols t)
+
+(when clojure-enable-fancify-symbols
+  (clojure/fancify-symbols 'cider-repl-mode)
+  (clojure/fancify-symbols 'cider-clojure-interaction-mode))
+
+
+(use-package clojure-mode
+  :ensure t
+  :config
+  (when clojure-enable-fancify-symbols
+	(dolist (m '(clojure-mode clojurescript-mode clojurec-mode clojurex-mode))
+	  (clojure/fancify-symbols m))))
+
+
+(clojure/fancify-symbols 'clojure-mode)
+
 
 (defun cider-eval-in-repl-no-focus (form)
   "Insert FORM in the REPL buffer and eval it."
@@ -583,3 +655,17 @@ the focus."
   (add-to-list 'exec-path my-cabal-path))
 
 (custom-set-variables '(haskell-tags-on-save t))
+
+
+
+
+;; since we are loading this init-file as an argument, emacs
+;; has already runned after-init-hook when it loads this file
+;; so let's run it again, function by function
+(defun lira/force-after-init-hook ()
+  (dolist (func after-init-hook )
+    (when (boundp func)
+	(funcall func)
+      )))
+
+(lira/force-after-init-hook)
