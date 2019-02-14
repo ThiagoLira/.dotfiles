@@ -711,8 +711,12 @@ the focus."
 
 (use-package haskell-mode
   :ensure t
-  :defer t
  )
+
+(use-package intero
+  :ensure t
+  :hook (after-init . haskell-mode)
+ ) 
 
 
 ;; https://github.com/serras/emacs-haskell-tutorial/blob/master/tutorial.md
@@ -734,4 +738,5 @@ the focus."
 	(funcall func)
       )))
 
-(lira/force-after-init-hook)
+(run-hooks 'after-init-hook)
+
