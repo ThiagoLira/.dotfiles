@@ -132,6 +132,11 @@
   :ensure t)
 (use-package ace-window
   :ensure t)
+(use-package exec-path-from-shell
+  :ensure t)
+
+(exec-path-from-shell-initialize)
+
 
 ;; THEME AND GUI
 
@@ -720,6 +725,10 @@ the focus."
 ;; HASKELL
 
 
+(major-mode-hydra-bind haskell-mode "REPL" 
+			("sb" haskell-process-load-file)
+			("q" nil))
+
 (use-package haskell-mode
   :ensure t
  )
@@ -727,12 +736,14 @@ the focus."
 (use-package company-cabal
   :ensure t)
 
-(add-to-list 'company-backends 'company-cabal)
+(add-to-list 'company-backends #'company-cabal)
 
 
 (use-package flycheck-haskell
-  :ensure t
-  :hook (haskell-mode   . flycheck-haskell-setup))
+  :ensure t)
+
+(add-hook 'haskell-mode-hook #'flycheck-haskell-setup)
+
 
 (use-package dante
   :ensure t
@@ -755,13 +766,15 @@ the focus."
   )
 
 
+(add-hook 'dante-mode-hook
+   '(lambda () (flycheck-add-next-checker 'haskell-dante
+                '(warning . haskell-hlint))))
 
 ;; https://github.com/serras/emacs-haskell-tutorial/blob/master/tutorial.md
 (let ((my-cabal-path (expand-file-name "~/.cabal/bin")))
   (setenv "PATH" (concat my-cabal-path path-separator (getenv "PATH")))
   (add-to-list 'exec-path my-cabal-path))
 
-(custom-set-variables '(haskell-tags-on-save t))
 
 
 ;; add /usr/local/bin to PATH
