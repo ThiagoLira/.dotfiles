@@ -48,7 +48,8 @@
  fill-column 80                                   ; Set width for automatic line breaks
  help-window-select t                             ; Focus new help windows when opened
  inhibit-startup-screen t                         ; Disable start-up screen
- initial-scratch-message init-message                       ; Empty the initial *scratch* buffer
+ initial-scratch-message nil                       
+ initial-major-mode 'emacs-lisp-mode              ; start scratch buffer on lisp mode
  kill-ring-max 128                                ; Maximum length of kill ring
  load-prefer-newer t                              ; Prefers the newest version of a file
  mark-ring-max 128                                ; Maximum length of mark ring
@@ -404,6 +405,7 @@ Repeated invocations toggle between the two most recently open buffers."
     "/"   'counsel-ag
     "TAB" '(er-switch-to-previous-buffer :which-key "prev buffer")
     "SPC" 'counsel-M-x
+
  ;; Buffer operations
     "b"   '(:ignore t :which-key "buffer")
     "bb"  'mode-line-other-buffer
@@ -414,22 +416,25 @@ Repeated invocations toggle between the two most recently open buffers."
     "bR"  'rename-file-and-buffer
     "br"  'revert-buffer
 
-    "qq" 'kill-emacs
+	;; quit
+	"qq" 'kill-emacs
 
-    ;; help functions
-    "hv"  'describe-variable
+    ;; emacs help	
+    "hV" 'describe-variable 
+    "hF" 'describe-function
     
- ;; bind to double key press
-  "ff"  'counsel-find-file  ; find file using ivy
-  "fr"	'counsel-recentf    ; find recently edited files
-  "pf"  'counsel-git        ; find file in git project
-  "ft"  'treemacs ;;treemacs toogle
- ;; Applications
- "a" '(:ignore t :which-key "Applications")
- "ar" 'ranger
- "ad" 'dired
- "w" 'hydra-window/body
- "<f2>" 'hydra-zoom/body
+    ;; find files
+    "ff"  'counsel-find-file  ; find file using ivy
+    "fr"  'counsel-recentf    ; find recently edited files
+    "pf"  'counsel-git        ; find file in git project
+    "ft"  'treemacs ;;treemacs toogle
+
+	;; Applications
+	"a" '(:ignore t :which-key "Applications")
+	"ar" 'ranger
+	"ad" 'dired
+	"w" 'hydra-window/body
+	"<f2>" 'hydra-zoom/body
  )
 
 
@@ -563,11 +568,6 @@ _k_: delete up     ^ ^                ^ ^
   :pin org)
 
 
-(use-package org-plus-contrib
-  :pin org
-  :after org)
-
-
  
 ;; ELISP
 
@@ -575,7 +575,11 @@ _k_: delete up     ^ ^                ^ ^
                        ("ee" eval-last-sexp "sexp")
                        ("eb" eval-buffer "buffer")
                        ("ed" eval-defun "defun")
-                       ("er" eval-region "region"))
+                       ("er" eval-region "region")
+					   ("hv" find-variable-at-point "find var")
+					   ("hf" find-function-at-point "find fun")
+
+					   )
 
 ;; CLOJURE
 
@@ -726,7 +730,9 @@ the focus."
 
 
 (major-mode-hydra-bind haskell-mode "REPL" 
-			("sb" haskell-process-load-file)
+  ("sb" haskell-process-load-file)
+  ("hp" dante-info)
+  ("ht" dante-type-at)
 			("q" nil))
 
 (use-package haskell-mode
