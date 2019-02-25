@@ -929,6 +929,22 @@ the focus."
 
 
 
+;; Python
+
+(use-package elpy
+  :ensure t
+  :config
+  (setq python-shell-interpreter "python3"
+      python-shell-interpreter-args "-i"))
+
+
+(major-mode-hydra-bind python-mode "REPL" 
+  ("se" elpy-shell-send-statement-and-step-and-go)
+  ("sf" elpy-shell-send-defun-and-go)
+  ("sb" elpy-shell-send-buffer-and-go)
+			("q" nil))
+
+
 ;; add /usr/local/bin to PATH
 (setenv "PATH" (concat "/usr/local/bin" path-separator (getenv "PATH")))
 
@@ -943,7 +959,7 @@ the focus."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-	(projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
+    (elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
