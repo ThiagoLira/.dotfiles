@@ -937,12 +937,31 @@ the focus."
 
 ;; Python
 
+
+;; https://emacs.stackexchange.com/questions/30082/your-python-shell-interpreter-doesn-t-seem-to-support-readline
+(with-eval-after-load 'python
+  (defun python-shell-completion-native-try ()
+    "Return non-nil if can trigger native completion."
+    (let ((python-shell-completion-native-enable t)
+          (python-shell-completion-native-output-timeout
+           python-shell-completion-native-try-output-timeout))
+      (python-shell-completion-native-get-completions
+       (get-buffer-process (current-buffer))
+       nil "_"))))
+
+
 (use-package elpy
   :ensure t
   :config
   (setq python-shell-interpreter "python3"
       python-shell-interpreter-args "-i"))
 
+
+(use-package eval-sexp-fu
+  :ensure t
+  :config
+  (setq eval-sexp-fu-flash-mode t)
+  )
 
 (major-mode-hydra-bind python-mode "REPL" 
   ("se" elpy-shell-send-statement-and-step-and-go)
@@ -965,7 +984,7 @@ the focus."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
+    (eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
