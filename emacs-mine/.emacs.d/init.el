@@ -9,37 +9,6 @@
   (global-display-line-numbers-mode))
 
 
-
-
-(setq init-message
-"
- |  _ \                                                                   
- | |_) |  ___   _ __  __ _                                                
- |  _ <  / _ \ | '__|/ _` |                                               
- | |_) || (_) || |  | (_| |                                               
- |____/  \___/ |_|   \__,_|                                               
-   _____            _                                                     
-  / ____|          | |                                                    
- | |      ___    __| |  __ _  _ __                                        
- | |     / _ \  / _` | / _` || '__|                                       
- | |____| (_) || (_| || (_| || |                                          
-  \_____|\___/  \__,_| \__,_||_|                                          
-  _    _                                                        _         
- | |  | |                                                      | |        
- | |  | | _ __ ___    __ _  ___   _ __    __ _  _ __  __ _   __| |  __ _  
- | |  | || '_ ` _ \  / _` |/ __| | '_ \  / _` || '__|/ _` | / _` | / _` | 
- | |__| || | | | | || (_| |\__ \ | |_) || (_| || |  | (_| || (_| || (_| | 
-  \____/ |_| |_| |_| \__,_||___/ | .__/  \__,_||_|   \__,_| \__,_| \__,_| 
-  __  __                     _   | |                                      
- |  \/  |                   | |  |_|                                      
- | \  / |  __ _   ___  __ _ | |__   _ __  __ _                            
- | |\/| | / _` | / __|/ _` || '_ \ | '__|/ _` |                           
- | |  | || (_| || (__| (_| || |_) || |  | (_| |                           
- |_|  |_| \__,_| \___|\__,_||_.__/ |_|   \__,_|"
-
-)
-
-
 ;; better defaults
 (setq
  ad-redefinition-action 'accept                   ; Silence warnings for redefinition
@@ -48,7 +17,7 @@
  fill-column 80                                   ; Set width for automatic line breaks
  help-window-select t                             ; Focus new help windows when opened
  inhibit-startup-screen t                         ; Disable start-up screen
- initial-scratch-message nil                       
+ initial-scratch-message nil
  initial-major-mode 'emacs-lisp-mode              ; start scratch buffer on lisp mode
  kill-ring-max 128                                ; Maximum length of kill ring
  load-prefer-newer t                              ; Prefers the newest version of a file
@@ -63,8 +32,8 @@
  find-file-visit-truename t
  view-read-only t
  display-line-numbers-type 'relative
- display-line-numbers-width-start t
- )                                ; Always open read-only buffers in view-mode
+ display-line-numbers-width-start t)
+
 (column-number-mode 1)                            ; Show the column number
 (display-time-mode 1)                             ; Enable time in the mode-line
 (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
@@ -82,7 +51,7 @@
 (menu-bar-mode   -1)
 
 
-  
+
 
 
 ;; bootstrap use-package
@@ -134,27 +103,23 @@
 (use-package ace-window
   :ensure t)
 (use-package exec-path-from-shell
-  :ensure t)
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize)
+  )
 (use-package monitor
   :ensure t)
-
-
-
-(exec-path-from-shell-initialize)
-
-
 
 
 ;; projectile
 
 (use-package projectile
-  :ensure t)
-
-(projectile-mode +1)
-(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-
-
+  :ensure t
+  :config
+  (projectile-mode +1)
+  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  )
 
 ;; THEME AND GUI
 
@@ -167,30 +132,15 @@
 
 (use-package doom-modeline
       :ensure t
-      :hook (after-init . doom-modeline-mode))
+      :hook (after-init . doom-modeline-mode)
+      :config
+      ;; How tall the mode-line should be (only respected in GUI Emacs).
+      (setq doom-modeline-height 25)
+      ;; How wide the mode-line bar should be (only respected in GUI Emacs).
+      (setq doom-modeline-bar-width 3))
 
 
-
-
-
-(defun use-default-theme()
-  "Load a theme."
-  (load-theme 'doom-one t))
-
-
-(use-default-theme)
-(doom-modeline-mode 1)
-
-
-(add-hook 'after-init-hook 'use-defaut-theme)
-
-
-;; How tall the mode-line should be (only respected in GUI Emacs).
-(setq doom-modeline-height 25)
-
-;; How wide the mode-line bar should be (only respected in GUI Emacs).
-(setq doom-modeline-bar-width 3)
-
+(add-hook 'after-init-hook (lambda () (load-theme 'doom-one t)))
 
 ;; EVIL MODE
 
@@ -288,7 +238,7 @@
         (kbd "j") 'archive-next-line
         (kbd "k") 'archive-previous-line))
 
-   ;; Window Movement 
+   ;; Window Movement
      (define-key evil-normal-state-map (kbd "C-h") 'evil-window-left)
      (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
      (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
@@ -447,10 +397,10 @@ Repeated invocations toggle between the two most recently open buffers."
 	;; quit
 	"qq" 'kill-emacs
 
-    ;; emacs help	
-    "hV" 'describe-variable 
+    ;; emacs help
+    "hV" 'describe-variable
     "hF" 'describe-function
-    
+
     ;; find files
     "ff"  'counsel-find-file  ; find file using ivy
     "fr"  'counsel-recentf    ; find recently edited files
@@ -462,45 +412,48 @@ Repeated invocations toggle between the two most recently open buffers."
 	"ar" 'ranger
 	"ad" 'dired
 	"w" 'hydra-window/body
-	"<f2>" 'hydra-zoom/body
- )
+	"<f2>" 'hydra-zoom/body)
 
 
-(defhydra hydra-window (:color red
-                        :hint nil)
-"
-  
-^Move^             ^Split^           ^Delete          
+(defhydra hydra-window (:color red 
+			       :hint nil)
+  "
+
+^Move^             ^Split^           ^Delete
 ^^^^^^^^------------------------------------------------
-_h_: mark          _|_: unmark        _x_: execute       
-_j_: save          _-_: unmark up     _k_: bury          
-_l_: delete        ^ ^                ^ ^       
-_k_: delete up     ^ ^                ^ ^  
-"
-  ("h" windmove-left)
-  ("j" windmove-down)
-  ("k" windmove-up)
-  ("l" windmove-right)
-  ("H" hydra-move-splitter-left)
-  ("J" hydra-move-splitter-down)
-  ("K" hydra-move-splitter-up)
-  ("L" hydra-move-splitter-right)
-  ("|" (lambda ()
-         (interactive)
-         (split-window-right)
-         (windmove-right)) :color blue)
-  ("-" (lambda ()
-         (interactive)
-         (split-window-below)
-         (windmove-down)) :color blue)
-  ("o" delete-other-windows :exit t)
-  ("a" ace-window :exit t)
-  ("f" make-frame :exit t)
-  ("d" delete-window)
-  ("b" kill-this-buffer)
-  ("x" delete-frame :exit t)
-  ("q" nil)
-)
+_h_: mark          _|_: unmark        _d_: delete window 
+_j_: save          _-_: unmark up     _b_: kill buffer
+_l_: delete        ^ ^                ^ ^
+_k_: delete up     ^ ^                ^ ^
+" ("h" windmove-left) 
+("j" windmove-down) 
+("k" windmove-up) 
+("l" windmove-right) 
+("H" hydra-move-splitter-left) 
+("J" hydra-move-splitter-down) 
+("K" hydra-move-splitter-up) 
+("L" hydra-move-splitter-right) 
+("|" (lambda () 
+       (interactive) 
+       (split-window-right) 
+       (windmove-right)) 
+ :color blue) 
+("-" (lambda () 
+       (interactive) 
+       (split-window-below) 
+       (windmove-down)) 
+ :color blue) 
+("o" delete-other-windows 
+ :exit t) 
+("a" ace-window 
+ :exit t) 
+("f" make-frame 
+ :exit t) 
+("d" delete-window) 
+("b" kill-this-buffer) 
+("x" delete-frame 
+ :exit t) 
+("q" nil))
 
 (defhydra hydra-zoom (:color green)
   "zoom"
@@ -605,26 +558,30 @@ _k_: delete up     ^ ^                ^ ^
               (evil-org-set-key-theme  '(textobjects insert navigation additional shift todo heading))))
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
-  
+
 
 
 (major-mode-hydra-bind org-mode "Org"
 
   ("," org-ctrl-c-ctrl-c "magic")
+)
 
-    )
- 
 ;; ELISP
 
-(major-mode-hydra-bind emacs-lisp-mode "Eval"
-                       ("ee" eval-last-sexp "sexp")
-                       ("eb" eval-buffer "buffer")
-                       ("ed" eval-defun "defun")
-                       ("er" eval-region "region")
-		("hv" find-variable-at-point "find var")
-					  ("hf" find-function-at-point "find fun")
 
-					   )
+(use-package elisp-format
+  :ensure t)
+
+
+(major-mode-hydra-bind emacs-lisp-mode "Eval"
+
+  ("ee" eval-last-sexp "sexp")
+  ("eb" eval-buffer "buffer")
+  ("ed" eval-defun "defun")
+  ("er" eval-region "region")
+  ("hv" find-variable-at-point "find var")
+  ("hf" find-function-at-point "find fun")
+)
 
 ;; CLOJURE
 
@@ -753,36 +710,36 @@ the focus."
   (cider-switch-to-repl-buffer)
   (evil-insert-state))
 
-(major-mode-hydra-bind clojure-mode "cider" 
-                        ("'" cider-jack-in "jack-in")
-			("sb" cider-load-buffer)
-			("sB" cider-send-buffer-in-repl-and-focus)
-			("sC" cider-find-and-clear-repl-output)
-			("se" cider-send-last-sexp-to-repl)
-			("sE" cider-send-last-sexp-to-repl-focus)
-			("sf" cider-send-function-to-repl)
-			("sF" cider-send-function-to-repl-focus)
-			("sn" cider-send-ns-form-to-repl)
-			("sN" cider-send-ns-form-to-repl-focus)
-			("so" cider-repl-switch-to-other)
-			("sq" cider-quit)
-			("sr" cider-send-region-to-repl)
-			("sR" cider-send-region-to-repl-focus)
-			("q" nil))
+(major-mode-hydra-bind clojure-mode "cider"
+
+  ("'" cider-jack-in "jack-in")
+  ("sb" cider-load-buffer)
+  ("sB" cider-send-buffer-in-repl-and-focus)
+  ("sC" cider-find-and-clear-repl-output)
+  ("se" cider-send-last-sexp-to-repl)
+  ("sE" cider-send-last-sexp-to-repl-focus)
+  ("sf" cider-send-function-to-repl)
+  ("sF" cider-send-function-to-repl-focus)
+  ("sn" cider-send-ns-form-to-repl)
+  ("sN" cider-send-ns-form-to-repl-focus)
+  ("so" cider-repl-switch-to-other)
+  ("sq" cider-quit)
+  ("sr" cider-send-region-to-repl)
+  ("sR" cider-send-region-to-repl-focus)
+  ("q" nil))
 
 
 ;; HASKELL
 
 
-(major-mode-hydra-bind haskell-mode "REPL" 
+(major-mode-hydra-bind haskell-mode "REPL"
   ("sb" haskell-process-load-file)
   ("hp" dante-info)
   ("ht" dante-type-at)
-			("q" nil))
+  ("q" nil))
 
 (use-package haskell-mode
-  :ensure t
- )
+  :ensure t)
 
 (use-package company-cabal
   :ensure t)
@@ -794,7 +751,6 @@ the focus."
   :ensure t)
 
 (add-hook 'haskell-mode-hook #'flycheck-haskell-setup)
-
 
 (use-package dante
   :ensure t
@@ -812,9 +768,8 @@ the focus."
   :commands 'dante-mode
   :init
   (add-hook 'haskell-mode-hook 'dante-mode)
-  
-  (add-hook 'haskell-mode-hook 'company-mode)
-  )
+
+  (add-hook 'haskell-mode-hook 'company-mode))
 
 
 (add-hook 'dante-mode-hook
@@ -825,10 +780,6 @@ the focus."
 (let ((my-cabal-path (expand-file-name "~/.cabal/bin")))
   (setenv "PATH" (concat my-cabal-path path-separator (getenv "PATH")))
   (add-to-list 'exec-path my-cabal-path))
-
-
-
-
 
 ;; LATEX
 
@@ -850,8 +801,7 @@ the focus."
   (auctex-latexmk-setup))
 
 (use-package company-auctex
-  :ensure t
-  )
+  :ensure t)
 
 (company-auctex-init)
 
@@ -958,9 +908,6 @@ the focus."
         ("restartlist" "{")
         ("crefname" "{")))
 
-
-
-
 ;; Python
 
 
@@ -986,23 +933,24 @@ the focus."
 (use-package eval-sexp-fu
   :ensure t
   :config
-  (setq eval-sexp-fu-flash-mode t)
-  )
+  (setq eval-sexp-fu-flash-mode t))
 
-(major-mode-hydra-bind python-mode "REPL" 
+(major-mode-hydra-bind python-mode "REPL"
   ("se" elpy-shell-send-statement-and-step-and-go)
   ("sf" elpy-shell-send-defun-and-go)
   ("sb" elpy-shell-send-buffer-and-go)
-			("q" nil))
+  ("q" nil))
 
 
 ;; add /usr/local/bin to PATH
 (setenv "PATH" (concat "/usr/local/bin" path-separator (getenv "PATH")))
-
 (add-to-list 'exec-path "/usr/local/bin")
+
 
 (provide 'init)
 ;;; init.el ends here
+
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -1010,7 +958,7 @@ the focus."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-	(org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
+    (elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
