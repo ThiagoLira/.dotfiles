@@ -135,6 +135,10 @@
   :ensure t)
 (use-package exec-path-from-shell
   :ensure t)
+(use-package monitor
+  :ensure t)
+
+
 
 (exec-path-from-shell-initialize)
 
@@ -412,6 +416,11 @@ Repeated invocations toggle between the two most recently open buffers."
   (interactive)
   (switch-to-buffer (other-buffer (current-buffer) 1)))
 
+; (defun buffer-list ()
+; (interactive)
+  ; (switch-to-buffer (nil (current-buffer) 1 ))
+  ; )
+
 
 (general-define-key
  :states '(normal visual insert emacs)
@@ -427,7 +436,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
  ;; Buffer operations
     "b"   '(:ignore t :which-key "buffer")
-    "bb"  'mode-line-other-buffer
+    "bb"  'ibuffer
     "bd"  'kill-this-buffer
     "b]"  'next-buffer
     "b["  'previous-buffer
@@ -586,7 +595,24 @@ _k_: delete up     ^ ^                ^ ^
 (use-package org
   :pin org)
 
+(use-package evil-org
+  :ensure t
+  :after org
+  :config
+  (add-hook 'org-mode-hook 'evil-org-mode)
+  (add-hook 'evil-org-mode-hook
+            (lambda ()
+              (evil-org-set-key-theme  '(textobjects insert navigation additional shift todo heading))))
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+  
 
+
+(major-mode-hydra-bind org-mode "Org"
+
+  ("," org-ctrl-c-ctrl-c "magic")
+
+    )
  
 ;; ELISP
 
@@ -595,8 +621,8 @@ _k_: delete up     ^ ^                ^ ^
                        ("eb" eval-buffer "buffer")
                        ("ed" eval-defun "defun")
                        ("er" eval-region "region")
-					   ("hv" find-variable-at-point "find var")
-					   ("hf" find-function-at-point "find fun")
+		("hv" find-variable-at-point "find var")
+					  ("hf" find-function-at-point "find fun")
 
 					   )
 
@@ -984,7 +1010,7 @@ the focus."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
+	(org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
