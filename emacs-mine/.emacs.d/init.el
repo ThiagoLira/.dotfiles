@@ -942,6 +942,22 @@ the focus."
   ("q" nil))
 
 
+;; Common LISP
+
+(use-package sly
+  :ensure t)
+
+(add-to-list 'auto-mode-alist '("\\.lsp\\'" . sly-mode))
+
+
+(major-mode-hydra-bind sly-mode "REPL"
+  ("se" sly-eval-last-expression)
+  ("sf" sly-eval-defun)
+  ("sb" sly-eval-buffer)
+  ("q" nil))
+
+
+
 ;; add /usr/local/bin to PATH
 (setenv "PATH" (concat "/usr/local/bin" path-separator (getenv "PATH")))
 (add-to-list 'exec-path "/usr/local/bin")
@@ -958,7 +974,7 @@ the focus."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
+    (sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
