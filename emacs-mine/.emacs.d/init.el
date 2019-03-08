@@ -947,10 +947,9 @@ the focus."
 (use-package sly
   :ensure t)
 
-(add-to-list 'auto-mode-alist '("\\.lsp\\'" . sly-mode))
 
 
-(major-mode-hydra-bind sly-mode "REPL"
+(major-mode-hydra-bind lisp-mode "REPL"
   ("se" sly-eval-last-expression)
   ("sf" sly-eval-defun)
   ("sb" sly-eval-buffer)
