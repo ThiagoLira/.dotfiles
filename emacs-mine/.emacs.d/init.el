@@ -51,6 +51,9 @@
 (menu-bar-mode   -1)
 
 
+(defconst *is-a-mac* (eq system-type 'darwin))
+
+(if *is-a-mac* (defvar fish-location  "/usr/local/bin/fish") nil) 
 
 
 
@@ -372,6 +375,15 @@ Repeated invocations toggle between the two most recently open buffers."
   ; )
 
 
+(defun split-and-move-down ()
+  (interactive)
+  (split-window-below) 
+  (windmove-down)) 
+(defun split-and-move-right ()
+  (interactive)
+  (split-window-right) 
+  (windmove-right)) 
+
 (general-define-key
  :states '(normal visual insert emacs)
  :prefix "SPC"
@@ -383,7 +395,15 @@ Repeated invocations toggle between the two most recently open buffers."
     "/"   'counsel-ag
     "TAB" '(er-switch-to-previous-buffer :which-key "prev buffer")
     "SPC" 'counsel-M-x
+    ";" 'shell-pop
 
+ ;; Window operations 
+  "w"   '(:ignore t :which-key "window")
+  "w|" 'split-and-move-right 
+
+  "w-" 'split-and-move-down
+  "wd" 'delete-window
+  "wx" 'delete-frame
  ;; Buffer operations
     "b"   '(:ignore t :which-key "buffer")
     "bb"  'ibuffer
@@ -394,8 +414,8 @@ Repeated invocations toggle between the two most recently open buffers."
     "bR"  'rename-file-and-buffer
     "br"  'revert-buffer
 
-	;; quit
-	"qq" 'kill-emacs
+   ;; quit
+   "qq" 'kill-emacs
 
     ;; emacs help
     "hV" 'describe-variable
@@ -411,49 +431,10 @@ Repeated invocations toggle between the two most recently open buffers."
 	"a" '(:ignore t :which-key "Applications")
 	"ar" 'ranger
 	"ad" 'dired
-	"w" 'hydra-window/body
+	"t"  'term
 	"<f2>" 'hydra-zoom/body)
 
 
-(defhydra hydra-window (:color red 
-			       :hint nil)
-  "
-
-^Move^             ^Split^           ^Delete
-^^^^^^^^------------------------------------------------
-_h_: mark          _|_: unmark        _d_: delete window 
-_j_: save          _-_: unmark up     _b_: kill buffer
-_l_: delete        ^ ^                ^ ^
-_k_: delete up     ^ ^                ^ ^
-" ("h" windmove-left) 
-("j" windmove-down) 
-("k" windmove-up) 
-("l" windmove-right) 
-("H" hydra-move-splitter-left) 
-("J" hydra-move-splitter-down) 
-("K" hydra-move-splitter-up) 
-("L" hydra-move-splitter-right) 
-("|" (lambda () 
-       (interactive) 
-       (split-window-right) 
-       (windmove-right)) 
- :color blue) 
-("-" (lambda () 
-       (interactive) 
-       (split-window-below) 
-       (windmove-down)) 
- :color blue) 
-("o" delete-other-windows 
- :exit t) 
-("a" ace-window 
- :exit t) 
-("f" make-frame 
- :exit t) 
-("d" delete-window) 
-("b" kill-this-buffer) 
-("x" delete-frame 
- :exit t) 
-("q" nil))
 
 (defhydra hydra-zoom (:color green)
   "zoom"
@@ -908,6 +889,20 @@ the focus."
         ("restartlist" "{")
         ("crefname" "{")))
 
+
+
+;; Shell
+
+(use-package shell-pop
+  :ensure t
+  :config
+  (setq shell-pop-term-shell fish-location)
+  (setq shell-pop-shell-type 'terminal)
+  )
+
+
+
+
 ;; Python
 
 
@@ -944,15 +939,15 @@ the focus."
 
 ;; Common LISP
 
-(use-package sly
+(use-package slime
   :ensure t)
 
 
 
 (major-mode-hydra-bind lisp-mode "REPL"
-  ("se" sly-eval-last-expression)
-  ("sf" sly-eval-defun)
-  ("sb" sly-eval-buffer)
+  ("se" slime-eval-last-expression)
+  ("sf" slime-eval-defun)
+  ("sb" slime-eval-buffer)
   ("q" nil))
 
 
@@ -973,7 +968,7 @@ the focus."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
+	(slime shell-pop sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
