@@ -54,6 +54,7 @@
 (defconst *is-a-mac* (eq system-type 'darwin))
 
 (if *is-a-mac* (defvar fish-location  "/usr/local/bin/fish") nil) 
+(if *is-a-mac* (defvar sbcl-location  "/usr/local/bin/sbcl") nil) 
 
 
 
@@ -940,7 +941,10 @@ the focus."
 ;; Common LISP
 
 (use-package slime
-  :ensure t)
+  :ensure t
+  :config
+  (setq inferior-lisp-program sbcl-location)
+  (add-to-list 'slime-contribs 'slime-repl))
 
 
 
