@@ -898,9 +898,13 @@ the focus."
   :ensure t
   :config
   (setq shell-pop-term-shell fish-location)
-  (setq shell-pop-shell-type 'terminal)
+  (setq shell-pop-shell-type ("ansi-term" "*ansi-term*" (lambda nil (ansi-term fish-location))))
+  
   )
 
+
+;; Fish is the default shell
+(setq explicit-shell-file-name fish-location)
 
 
 
