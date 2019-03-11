@@ -569,7 +569,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package cider
   :ensure t
-  ;; :mode ("\\.clj\\'" . clojure-mode)
+  :mode ("\\.clj\\'" . clojure-mode)
   )
 
 
@@ -721,20 +721,24 @@ the focus."
   ("q" nil))
 
 (use-package haskell-mode
+  :mode ("\\.hs\\'" . haskell-mode)
   :ensure t)
 
 (use-package company-cabal
+  :mode ("\\.hs\\'" . haskell-mode)
   :ensure t)
 
 (add-to-list 'company-backends #'company-cabal)
 
 
 (use-package flycheck-haskell
+  :mode ("\\.hs\\'" . haskell-mode)
   :ensure t)
 
 (add-hook 'haskell-mode-hook #'flycheck-haskell-setup)
 
 (use-package dante
+  :mode ("\\.hs\\'" . haskell-mode)
   :ensure t
   :hook (haskell-mode-local-vars . dante-mode)
   :init
@@ -766,13 +770,14 @@ the focus."
 ;; LATEX
 
 (use-package tex
-  :defer t
   :ensure auctex
+  :mode ("\\.tex\\'" . laTeX-mode)
   :config
   (setq TeX-auto-save t))
 
 (use-package auctex-latexmk
   :after latex
+  :mode ("\\.tex\\'" . laTeX-mode)
   :ensure t
   :init
   ;; Pass the -pdf flag when TeX-PDF-mode is active
@@ -783,6 +788,7 @@ the focus."
   (auctex-latexmk-setup))
 
 (use-package company-auctex
+  :mode ("\\.tex\\'" . laTeX-mode)
   :ensure t)
 
 (company-auctex-init)
@@ -928,6 +934,7 @@ the focus."
 
 (use-package elpy
   :ensure t
+  :mode ("\\.py\\'" . python-mode)
   :config
   (setq python-shell-interpreter "python3"
       python-shell-interpreter-args "-i"))
@@ -949,6 +956,7 @@ the focus."
 
 (use-package slime
   :ensure t
+  :mode ("\\.lsp\\'" . lisp-mode)
   :config
   (setq inferior-lisp-program sbcl-location)
   (add-to-list 'slime-contribs 'slime-repl))
