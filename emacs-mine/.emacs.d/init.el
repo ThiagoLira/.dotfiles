@@ -897,9 +897,8 @@ the focus."
 (use-package shell-pop
   :ensure t
   :config
+  (setq shell-pop-shell-type '("ansi-term" "*ansi-term*" (lambda nil (term))))
   (setq shell-pop-term-shell fish-location)
-  (setq shell-pop-shell-type ("ansi-term" "*ansi-term*" (lambda nil (ansi-term fish-location))))
-  
   )
 
 
@@ -908,8 +907,8 @@ the focus."
 
 
 
-;; Python
 
+;; Python
 
 ;; https://emacs.stackexchange.com/questions/30082/your-python-shell-interpreter-doesn-t-seem-to-support-readline
 (with-eval-after-load 'python
