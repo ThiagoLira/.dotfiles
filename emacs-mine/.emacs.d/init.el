@@ -802,6 +802,10 @@ the focus."
 (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
 (setq reftex-plug-into-AUCTeX t)
 
+(major-mode-hydra-bind latex-mode "Compilation"
+  ("pc" TeX-command-master)
+  ("pv" (lambda () (interactive) (TeX-view "skim")))
+  ("q" nil))
 
 ;; Fontification taken from https://tex.stackexchange.com/a/86119/81279
 (setq font-latex-match-reference-keywords
