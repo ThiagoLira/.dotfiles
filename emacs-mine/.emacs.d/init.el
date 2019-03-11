@@ -726,9 +726,11 @@ the focus."
 
 (use-package company-cabal
   :mode ("\\.hs\\'" . haskell-mode)
-  :ensure t)
+  :ensure t
+  :config
+  (add-to-list 'company-backends #'company-cabal)
+  )
 
-(add-to-list 'company-backends #'company-cabal)
 
 
 (use-package flycheck-haskell
