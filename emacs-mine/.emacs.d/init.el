@@ -54,6 +54,7 @@
 (defconst *is-a-mac* (eq system-type 'darwin))
 
 (if *is-a-mac* (defvar fish-location  "/usr/local/bin/fish") nil) 
+
 (if *is-a-mac* (defvar sbcl-location  "/usr/local/bin/sbcl") nil) 
 
 
@@ -124,7 +125,8 @@
   :ensure t)
 
 (use-package evil-magit
-  :ensure t)
+  :ensure t
+  :after evil)
 
 ;; projectile
 
@@ -799,6 +801,7 @@ the focus."
   ;; Pass the -pdf flag when TeX-PDF-mode is active
   (setq auctex-latexmk-inherit-TeX-PDF-mode t)
   ;; Set LatexMk as the default
+  (add-hook 'Latex-mode-hook (setq TeX-command-default "latexmk"))
   :config
   ;; Add latexmk as a TeX target
   (auctex-latexmk-setup))
@@ -814,8 +817,12 @@ the focus."
 (setq-default TeX-master nil)
 
 
-;; Set latexmk as default
-(add-hook 'Latex-mode-hook (setq TeX-command-default "LatexMk"))
+
+(setq TeX-command-list
+      (cons
+       `("LaTeX" . ,(cdr (assoc "LaTexMk" TeX-command-list)))
+       TeX-command-list))
+
 
 (add-hook 'LaTeX-mode-hook 'visual-line-mode)
 (add-hook 'LaTeX-mode-hook 'flyspell-mode)
@@ -826,7 +833,7 @@ the focus."
 
 (major-mode-hydra-bind latex-mode "Compilation"
   ("pc" TeX-command-master)
-  ("pv" (lambda () (interactive) (TeX-view "skim")))
+  ("pv" TeX-view ) 
   ("q" nil))
 
 ;; Fontification taken from https://tex.stackexchange.com/a/86119/81279
