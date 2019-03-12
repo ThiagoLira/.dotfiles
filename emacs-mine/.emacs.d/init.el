@@ -115,6 +115,17 @@
   :ensure t)
 
 
+
+
+
+;; Magit
+
+(use-package magit
+  :ensure t)
+
+(use-package evil-magit
+  :ensure t)
+
 ;; projectile
 
 (use-package projectile
@@ -433,7 +444,8 @@ Repeated invocations toggle between the two most recently open buffers."
 	"ar" 'ranger
 	"ad" 'dired
 	"t"  'term
-	"<f2>" 'hydra-zoom/body)
+	"g"  'magit-status
+	"z" 'hydra-zoom/body)
 
 
 
@@ -528,7 +540,8 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; ORG
 
 (use-package org
-  :pin org)
+  :pin org
+  :mode ("\\.org\\'" . org-mode))
 
 (use-package evil-org
   :ensure t
@@ -610,6 +623,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package clojure-mode
   :ensure t
+  :mode ("\\.clj\\'" . clojure-mode)
   :config
   (when clojure-enable-fancify-symbols
 	(dolist (m '(clojure-mode clojurescript-mode clojurec-mode clojurex-mode))
