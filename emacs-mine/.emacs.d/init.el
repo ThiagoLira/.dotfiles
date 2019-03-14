@@ -943,22 +943,13 @@ the focus."
 
 ;; Python
 
-;; https://emacs.stackexchange.com/questions/30082/your-python-shell-interpreter-doesn-t-seem-to-support-readline
-(with-eval-after-load 'python
-  (defun python-shell-completion-native-try ()
-    "Return non-nil if can trigger native completion."
-    (let ((python-shell-completion-native-enable t)
-          (python-shell-completion-native-output-timeout
-           python-shell-completion-native-try-output-timeout))
-      (python-shell-completion-native-get-completions
-       (get-buffer-process (current-buffer))
-       nil "_"))))
-
 
 (use-package elpy
   :ensure t
   :mode ("\\.py\\'" . python-mode)
   :config
+  (elpy-enable)
+  
   (setq python-shell-interpreter "python3"
       python-shell-interpreter-args "-i"))
 
@@ -968,10 +959,17 @@ the focus."
   :config
   (setq eval-sexp-fu-flash-mode t))
 
+(defun elpy-eval-line ()
+  "Evaluate the last sexp at the end of the current line."
+  (interactive)
+  (save-excursion (end-of-line) (elpy-shell-send-statement-and-step-and-go )))
+
+
 (major-mode-hydra-bind python-mode "REPL"
   ("se" elpy-shell-send-statement-and-step-and-go)
   ("sf" elpy-shell-send-defun-and-go)
   ("sb" elpy-shell-send-buffer-and-go)
+  ("sl" elpy-eval-line)
   ("q" nil))
 
 
@@ -986,11 +984,21 @@ the focus."
 
 
 
+(defun slime-eval-line ()
+  "Evaluate the last sexp at the end of the current line."
+  (interactive)
+  (save-excursion (end-of-line) (slime-eval-last-expression )))
+
+
+
 (major-mode-hydra-bind lisp-mode "REPL"
   ("se" slime-eval-last-expression)
   ("sf" slime-eval-defun)
   ("sb" slime-eval-buffer)
+  ("sl" slime-eval-line) 
+  ("si" slime)
   ("q" nil))
+
 
 
 
