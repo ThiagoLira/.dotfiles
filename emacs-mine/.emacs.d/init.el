@@ -432,8 +432,8 @@ Repeated invocations toggle between the two most recently open buffers."
    "qq" 'kill-emacs
 
     ;; emacs help
-    "hV" 'describe-variable
-    "hF" 'describe-function
+    "hv" 'describe-variable
+    "hf" 'describe-function
 
     ;; find files
     "ff"  'counsel-find-file  ; find file using ivy
@@ -569,6 +569,10 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package elisp-format
   :ensure t)
 
+(defun eval-line ()
+  "Evaluate the last sexp at the end of the current line."
+  (interactive)
+  (save-excursion (end-of-line) (eval-last-sexp )))
 
 (major-mode-hydra-bind emacs-lisp-mode "Eval"
 
@@ -576,6 +580,7 @@ Repeated invocations toggle between the two most recently open buffers."
   ("eb" eval-buffer "buffer")
   ("ed" eval-defun "defun")
   ("er" eval-region "region")
+  ("el" eval-line "line")
   ("hv" find-variable-at-point "find var")
   ("hf" find-function-at-point "find fun")
 )
