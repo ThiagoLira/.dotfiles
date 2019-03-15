@@ -792,49 +792,104 @@ the focus."
 
 ;; LATEX
 
-(use-package tex
+;;; LaTeX with AUCTeX
+(use-package tex-site                   ; AUCTeX initialization
+  :ensure auctex)
+
+(use-package tex                        ; TeX editing/processing
   :ensure auctex
-  :mode ("\\.tex\\'" . laTeX-mode)
+  :defer t
   :config
-  (setq TeX-auto-save t))
+  (setq TeX-parse-self t                ; Parse documents to provide completion
+                                        ; for packages, etc.
+        TeX-auto-save t                 ; Automatically save style information
+        TeX-electric-sub-and-superscript t ; Automatically insert braces after
+                                        ; sub- and superscripts in math mode
+        TeX-electric-math '("\\(" "\\)")
+        ;; Don't insert magic quotes right away.
+        TeX-quote-after-quote t
+        ;; Don't ask for confirmation when cleaning
+        TeX-clean-confirm nil
+        ;; Provide forward and inverse search with SyncTeX
+        TeX-source-correlate-mode t
+        TeX-source-correlate-method 'synctex)
+  (setq-default TeX-master nil          ; Ask for the master file
+                TeX-engine 'luatex      ; Use a modern engine
+                ;; Redundant in 11.88, but keep for older AUCTeX
+                TeX-PDF-mode t)
 
-(use-package auctex-latexmk
-  :after latex
-  :mode ("\\.tex\\'" . laTeX-mode)
+  ;; Move to chktex
+  (setcar (cdr (assoc "Check" TeX-command-list)) "chktex -v6 %s"))
+
+(use-package tex-buf                    ; TeX buffer management
+  :ensure auctex
+  :defer t
+  ;; Don't ask for confirmation when saving before processing
+  :config (setq TeX-save-query nil))
+
+(use-package tex-style                  ; TeX style
+  :ensure auctex
+  :defer t
+  :config
+  ;; Enable support for csquotes
+  (setq LaTeX-csquotes-close-quote "}"
+        LaTeX-csquotes-open-quote "\\enquote{"))
+
+(use-package tex-fold                   ; TeX folding
+  :ensure auctex
+  :defer t
+  :init (add-hook 'TeX-mode-hook #'TeX-fold-mode))
+
+(use-package tex-mode                   ; TeX mode
+  :ensure auctex
+  :defer t
+  :config
+  (font-lock-add-keywords 'latex-mode
+                          `((,(rx "\\"
+                                  symbol-start
+                                  "fx" (1+ (or (syntax word) (syntax symbol)))
+                                  symbol-end)
+                             . font-lock-warning-face))))
+
+(use-package latex                      ; LaTeX editing
+  :ensure auctex
+  :defer t
+  :config
+  ;; Teach TeX folding about KOMA script sections
+  (setq TeX-outline-extra `((,(rx (0+ space) "\\section*{") 2)
+                            (,(rx (0+ space) "\\subsection*{") 3)
+                            (,(rx (0+ space) "\\subsubsection*{") 4)
+                            (,(rx (0+ space) "\\minisec{") 5))
+        ;; No language-specific hyphens please
+        LaTeX-babel-hyphen nil)
+
+  (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode))    ; Easy math input
+
+(use-package auctex-latexmk             ; latexmk command for AUCTeX
   :ensure t
-  :init
-  ;; Pass the -pdf flag when TeX-PDF-mode is active
-  (setq auctex-latexmk-inherit-TeX-PDF-mode t)
-  ;; Set LatexMk as the default
-  (add-hook 'Latex-mode-hook (setq TeX-command-default "latexmk"))
+  :defer t
+  :after latex
+  :config (auctex-latexmk-setup))
+
+
+(use-package bibtex                     ; BibTeX editing
+  :defer t
   :config
-  ;; Add latexmk as a TeX target
-  (auctex-latexmk-setup))
+  ;; Run prog mode hooks for bibtex
+  (add-hook 'bibtex-mode-hook (lambda () (run-hooks 'prog-mode-hook)))
 
-(use-package company-auctex
-  :mode ("\\.tex\\'" . laTeX-mode)
-  :ensure t)
-
-(company-auctex-init)
-
-(setq TeX-auto-save t)
-(setq TeX-parse-self t)
-(setq-default TeX-master nil)
+  ;; Use a modern BibTeX dialect
+  (bibtex-set-dialect 'biblatex))
 
 
+(add-hook 'LaTeX-mode-hook (lambda ()
+                                (push
+                                 '("latexmk" "latexmk -pdf %s" TeX-run-TeX nil t
+                                   :help "Run latexmk on file")
+                                 TeX-command-list)))
 
-(setq TeX-command-list
-      (cons
-       `("LaTeX" . ,(cdr (assoc "LaTexMk" TeX-command-list)))
-       TeX-command-list))
+(add-hook 'TeX-mode-hook '(lambda () (setq TeX-command-default "latexmk")))
 
-
-(add-hook 'LaTeX-mode-hook 'visual-line-mode)
-(add-hook 'LaTeX-mode-hook 'flyspell-mode)
-(add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
-
-(add-hook 'LaTeX-mode-hook 'turn-on-reftex)
-(setq reftex-plug-into-AUCTeX t)
 
 (major-mode-hydra-bind latex-mode "Compilation"
   ("pc" TeX-command-master)
