@@ -53,7 +53,10 @@
 
 (defconst *is-a-mac* (eq system-type 'darwin))
 
-(if *is-a-mac* (defvar fish-location  "/usr/local/bin/fish") nil) 
+(if *is-a-mac* (defvar fish-location  "/usr/local/bin/fish")
+               (defvar fish-location "usr/bin/fish")) 
+
+
 (if *is-a-mac* (defvar sbcl-location  "/usr/local/bin/sbcl") nil) 
 
 
@@ -814,6 +817,9 @@ the focus."
   ("pc" TeX-command-master)
   ("pv" (lambda () (interactive) (TeX-view "skim")))
   ("q" nil))
+
+
+
 
 ;; Fontification taken from https://tex.stackexchange.com/a/86119/81279
 (setq font-latex-match-reference-keywords
