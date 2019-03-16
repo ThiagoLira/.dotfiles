@@ -53,13 +53,8 @@
 
 (defconst *is-a-mac* (eq system-type 'darwin))
 
-<<<<<<< HEAD
 (if *is-a-mac* (defvar fish-location  "/usr/local/bin/fish")
                (defvar fish-location "usr/bin/fish")) 
-
-=======
-(if *is-a-mac* (defvar fish-location  "/usr/local/bin/fish") nil) 
->>>>>>> 5bb380733652e20c8201c990fc94eafe4e71aa9d
 
 (if *is-a-mac* (defvar sbcl-location  "/usr/local/bin/sbcl") nil) 
 
