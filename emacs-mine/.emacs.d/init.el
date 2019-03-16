@@ -53,9 +53,13 @@
 
 (defconst *is-a-mac* (eq system-type 'darwin))
 
+<<<<<<< HEAD
 (if *is-a-mac* (defvar fish-location  "/usr/local/bin/fish")
                (defvar fish-location "usr/bin/fish")) 
 
+=======
+(if *is-a-mac* (defvar fish-location  "/usr/local/bin/fish") nil) 
+>>>>>>> 5bb380733652e20c8201c990fc94eafe4e71aa9d
 
 (if *is-a-mac* (defvar sbcl-location  "/usr/local/bin/sbcl") nil) 
 
@@ -117,6 +121,18 @@
 (use-package monitor
   :ensure t)
 
+
+
+
+
+;; Magit
+
+(use-package magit
+  :ensure t)
+
+(use-package evil-magit
+  :ensure t
+  :after evil)
 
 ;; projectile
 
@@ -422,8 +438,8 @@ Repeated invocations toggle between the two most recently open buffers."
    "qq" 'kill-emacs
 
     ;; emacs help
-    "hV" 'describe-variable
-    "hF" 'describe-function
+    "hv" 'describe-variable
+    "hf" 'describe-function
 
     ;; find files
     "ff"  'counsel-find-file  ; find file using ivy
@@ -436,7 +452,8 @@ Repeated invocations toggle between the two most recently open buffers."
 	"ar" 'ranger
 	"ad" 'dired
 	"t"  'term
-	"<f2>" 'hydra-zoom/body)
+	"g"  'magit-status
+	"z" 'hydra-zoom/body)
 
 
 
@@ -531,7 +548,8 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; ORG
 
 (use-package org
-  :pin org)
+  :pin org
+  :mode ("\\.org\\'" . org-mode))
 
 (use-package evil-org
   :ensure t
@@ -557,6 +575,10 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package elisp-format
   :ensure t)
 
+(defun eval-line ()
+  "Evaluate the last sexp at the end of the current line."
+  (interactive)
+  (save-excursion (end-of-line) (eval-last-sexp )))
 
 (major-mode-hydra-bind emacs-lisp-mode "Eval"
 
@@ -564,6 +586,7 @@ Repeated invocations toggle between the two most recently open buffers."
   ("eb" eval-buffer "buffer")
   ("ed" eval-defun "defun")
   ("er" eval-region "region")
+  ("el" eval-line "line")
   ("hv" find-variable-at-point "find var")
   ("hf" find-function-at-point "find fun")
 )
@@ -613,6 +636,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package clojure-mode
   :ensure t
+  :mode ("\\.clj\\'" . clojure-mode)
   :config
   (when clojure-enable-fancify-symbols
 	(dolist (m '(clojure-mode clojurescript-mode clojurec-mode clojurex-mode))
@@ -774,48 +798,108 @@ the focus."
 
 ;; LATEX
 
-(use-package tex
+;;; LaTeX with AUCTeX
+(use-package tex-site                   ; AUCTeX initialization
+  :ensure auctex)
+
+(use-package tex                        ; TeX editing/processing
   :ensure auctex
-  :mode ("\\.tex\\'" . laTeX-mode)
+  :defer t
   :config
-  (setq TeX-auto-save t))
+  (setq TeX-parse-self t                ; Parse documents to provide completion
+                                        ; for packages, etc.
+        TeX-auto-save t                 ; Automatically save style information
+        TeX-electric-sub-and-superscript t ; Automatically insert braces after
+                                        ; sub- and superscripts in math mode
+        TeX-electric-math '("\\(" "\\)")
+        ;; Don't insert magic quotes right away.
+        TeX-quote-after-quote t
+        ;; Don't ask for confirmation when cleaning
+        TeX-clean-confirm nil
+        ;; Provide forward and inverse search with SyncTeX
+        TeX-source-correlate-mode t
+        TeX-source-correlate-method 'synctex)
+  (setq-default TeX-master nil          ; Ask for the master file
+                TeX-engine 'luatex      ; Use a modern engine
+                ;; Redundant in 11.88, but keep for older AUCTeX
+                TeX-PDF-mode t)
 
-(use-package auctex-latexmk
-  :after latex
-  :mode ("\\.tex\\'" . laTeX-mode)
+  ;; Move to chktex
+  (setcar (cdr (assoc "Check" TeX-command-list)) "chktex -v6 %s"))
+
+(use-package tex-buf                    ; TeX buffer management
+  :ensure auctex
+  :defer t
+  ;; Don't ask for confirmation when saving before processing
+  :config (setq TeX-save-query nil))
+
+(use-package tex-style                  ; TeX style
+  :ensure auctex
+  :defer t
+  :config
+  ;; Enable support for csquotes
+  (setq LaTeX-csquotes-close-quote "}"
+        LaTeX-csquotes-open-quote "\\enquote{"))
+
+(use-package tex-fold                   ; TeX folding
+  :ensure auctex
+  :defer t
+  :init (add-hook 'TeX-mode-hook #'TeX-fold-mode))
+
+(use-package tex-mode                   ; TeX mode
+  :ensure auctex
+  :defer t
+  :config
+  (font-lock-add-keywords 'latex-mode
+                          `((,(rx "\\"
+                                  symbol-start
+                                  "fx" (1+ (or (syntax word) (syntax symbol)))
+                                  symbol-end)
+                             . font-lock-warning-face))))
+
+(use-package latex                      ; LaTeX editing
+  :ensure auctex
+  :defer t
+  :config
+  ;; Teach TeX folding about KOMA script sections
+  (setq TeX-outline-extra `((,(rx (0+ space) "\\section*{") 2)
+                            (,(rx (0+ space) "\\subsection*{") 3)
+                            (,(rx (0+ space) "\\subsubsection*{") 4)
+                            (,(rx (0+ space) "\\minisec{") 5))
+        ;; No language-specific hyphens please
+        LaTeX-babel-hyphen nil)
+
+  (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode))    ; Easy math input
+
+(use-package auctex-latexmk             ; latexmk command for AUCTeX
   :ensure t
-  :init
-  ;; Pass the -pdf flag when TeX-PDF-mode is active
-  (setq auctex-latexmk-inherit-TeX-PDF-mode t)
-  ;; Set LatexMk as the default
+  :defer t
+  :after latex
+  :config (auctex-latexmk-setup))
+
+
+(use-package bibtex                     ; BibTeX editing
+  :defer t
   :config
-  ;; Add latexmk as a TeX target
-  (auctex-latexmk-setup))
+  ;; Run prog mode hooks for bibtex
+  (add-hook 'bibtex-mode-hook (lambda () (run-hooks 'prog-mode-hook)))
 
-(use-package company-auctex
-  :mode ("\\.tex\\'" . laTeX-mode)
-  :ensure t)
-
-(company-auctex-init)
-
-(setq TeX-auto-save t)
-(setq TeX-parse-self t)
-(setq-default TeX-master nil)
+  ;; Use a modern BibTeX dialect
+  (bibtex-set-dialect 'biblatex))
 
 
-;; Set latexmk as default
-(add-hook 'Latex-mode-hook (setq TeX-command-default "LatexMk"))
+(add-hook 'LaTeX-mode-hook (lambda ()
+                                (push
+                                 '("latexmk" "latexmk -pdf %s" TeX-run-TeX nil t
+                                   :help "Run latexmk on file")
+                                 TeX-command-list)))
 
-(add-hook 'LaTeX-mode-hook 'visual-line-mode)
-(add-hook 'LaTeX-mode-hook 'flyspell-mode)
-(add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+(add-hook 'TeX-mode-hook '(lambda () (setq TeX-command-default "latexmk")))
 
-(add-hook 'LaTeX-mode-hook 'turn-on-reftex)
-(setq reftex-plug-into-AUCTeX t)
 
 (major-mode-hydra-bind latex-mode "Compilation"
   ("pc" TeX-command-master)
-  ("pv" (lambda () (interactive) (TeX-view "skim")))
+  ("pv" TeX-view ) 
   ("q" nil))
 
 
@@ -928,22 +1012,13 @@ the focus."
 
 ;; Python
 
-;; https://emacs.stackexchange.com/questions/30082/your-python-shell-interpreter-doesn-t-seem-to-support-readline
-(with-eval-after-load 'python
-  (defun python-shell-completion-native-try ()
-    "Return non-nil if can trigger native completion."
-    (let ((python-shell-completion-native-enable t)
-          (python-shell-completion-native-output-timeout
-           python-shell-completion-native-try-output-timeout))
-      (python-shell-completion-native-get-completions
-       (get-buffer-process (current-buffer))
-       nil "_"))))
-
 
 (use-package elpy
   :ensure t
   :mode ("\\.py\\'" . python-mode)
   :config
+  (elpy-enable)
+  
   (setq python-shell-interpreter "python3"
       python-shell-interpreter-args "-i"))
 
@@ -953,10 +1028,17 @@ the focus."
   :config
   (setq eval-sexp-fu-flash-mode t))
 
+(defun elpy-eval-line ()
+  "Evaluate the last sexp at the end of the current line."
+  (interactive)
+  (save-excursion (end-of-line) (elpy-shell-send-statement-and-step-and-go )))
+
+
 (major-mode-hydra-bind python-mode "REPL"
   ("se" elpy-shell-send-statement-and-step-and-go)
   ("sf" elpy-shell-send-defun-and-go)
   ("sb" elpy-shell-send-buffer-and-go)
+  ("sl" elpy-eval-line)
   ("q" nil))
 
 
@@ -971,11 +1053,21 @@ the focus."
 
 
 
+(defun slime-eval-line ()
+  "Evaluate the last sexp at the end of the current line."
+  (interactive)
+  (save-excursion (end-of-line) (slime-eval-last-expression )))
+
+
+
 (major-mode-hydra-bind lisp-mode "REPL"
   ("se" slime-eval-last-expression)
   ("sf" slime-eval-defun)
   ("sb" slime-eval-buffer)
+  ("sl" slime-eval-line) 
+  ("si" slime)
   ("q" nil))
+
 
 
 
