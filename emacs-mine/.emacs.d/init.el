@@ -54,9 +54,10 @@
 (defconst *is-a-mac* (eq system-type 'darwin))
 
 (if *is-a-mac* (defvar fish-location  "/usr/local/bin/fish")
-               (defvar fish-location "usr/bin/fish")) 
+               (defvar fish-location "/usr/bin/fish")) 
 
-(if *is-a-mac* (defvar sbcl-location  "/usr/local/bin/sbcl") nil) 
+(if *is-a-mac* (defvar sbcl-location  "/usr/local/bin/sbcl")
+               (defvar sbcl-location "/usr/bin/sbcl")) 
 
 
 
@@ -1003,6 +1004,12 @@ the focus."
 (setq explicit-shell-file-name fish-location)
 
 
+(use-package eterm-256color
+  :ensure t
+  :config
+  (add-hook 'term-mode-hook #'eterm-256color-mode)
+  )
+
 
 
 ;; Python
@@ -1082,7 +1089,7 @@ the focus."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-	(slime shell-pop sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
+    (eterm-256color evil-magit magit slime shell-pop sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

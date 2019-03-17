@@ -34,4 +34,10 @@ set -g fish_color_valid_path --underline
 source ~/.config/fish/functions/z.fish
 
 
+function fish_title
+  true
+end
+
+
+
 rvm default
