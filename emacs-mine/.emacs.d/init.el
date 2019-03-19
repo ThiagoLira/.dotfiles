@@ -1,5 +1,3 @@
-;; (setq user-emacs-directory "~/.emacs2.d/")
-
 (setq gc-cons-threshold (* 800 1024))
 
 (unless noninteractive
