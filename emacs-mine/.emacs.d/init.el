@@ -574,13 +574,14 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; ELISP
 
 
+
 (use-package elisp-format
   :ensure t)
 
 (defun eval-line ()
   "Evaluate the last sexp at the end of the current line."
   (interactive)
-  (save-excursion (end-of-line) (eval-last-sexp )))
+  (save-excursion (end-of-line) (eval-last-sexp nil)))
 
 (major-mode-hydra-bind emacs-lisp-mode "Eval"
 
@@ -813,7 +814,7 @@ the focus."
         TeX-auto-save t                 ; Automatically save style information
         TeX-electric-sub-and-superscript t ; Automatically insert braces after
                                         ; sub- and superscripts in math mode
-        TeX-electric-math '("\\(" "\\)")
+        ;; TeX-electric-math '("\\(" "\\)")
         ;; Don't insert magic quotes right away.
         TeX-quote-after-quote t
         ;; Don't ask for confirmation when cleaning
