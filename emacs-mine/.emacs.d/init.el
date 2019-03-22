@@ -1,5 +1,3 @@
-;; (setq user-emacs-directory "~/.emacs2.d/")
-
 (setq gc-cons-threshold (* 800 1024))
 
 (unless noninteractive
@@ -268,34 +266,6 @@
      (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
      (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
      (define-key evil-normal-state-map (kbd "C-l") 'evil-window-right)
-
-    (evil-set-initial-state 'wdired-mode 'normal)
-
-    (evil-set-initial-state 'ert-simple-view-mode 'motion)
-
-    (evil-set-initial-state 'diff-mode 'motion)
-
-    (evil-set-initial-state 'haskell-debug-mode 'motion)
-
-    (evil-set-initial-state 'ibuffer-mode 'motion)
-    (evil-set-initial-state 'eshell-mode 'insert)
-
-    (evil-set-initial-state 'mu4e-main-mode 'emacs)
-    (evil-set-initial-state 'mu4e-headers-mode 'emacs)
-    (evil-set-initial-state 'mu4e-view-mode 'motion)
-
-    (evil-set-initial-state 'nix-repl-mode 'insert)
-
-    (evil-set-initial-state 'prodigy-mode 'motion)
-
-    (evil-set-initial-state 'anaconda-mode-view-mode 'motion)
-
-    (evil-set-initial-state 'racer-help-mode 'motion)
-
-    (evil-set-initial-state 'indium-inspector-mode 'motion)
-    (evil-set-initial-state 'indium-repl-mode 'insert)
-
-    (evil-set-initial-state 'org-agenda-mode 'motion)
 
     ;; Add ex commands for controlling spellcheck.
 
@@ -1096,7 +1066,7 @@ the focus."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-	(key-chord eterm-256color evil-magit magit slime shell-pop sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
+    (key-chord eterm-256color evil-magit magit slime shell-pop sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
