@@ -119,9 +119,6 @@
   :ensure t)
 
 
-
-
-
 ;; Magit
 
 (use-package magit
