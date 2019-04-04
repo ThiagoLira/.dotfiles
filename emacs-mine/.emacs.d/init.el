@@ -157,6 +157,7 @@
   :ensure t)
 
 (use-package doom-modeline
+;; dont forget to run all-the-icons-install-fonts
       :ensure t
       :hook (after-init . doom-modeline-mode)
       :config
