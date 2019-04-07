@@ -413,7 +413,7 @@ Repeated invocations toggle between the two most recently open buffers."
     "p" '(:ignore t :which-key "project")
     "pg" 'counsel-projectile-grep
     "pf" 'counsel-projectile
-     
+    "pp" 'counsel-projectile-switch-project 
    ;; quit
    "qq" 'kill-emacs
 
@@ -424,7 +424,6 @@ Repeated invocations toggle between the two most recently open buffers."
     ;; find files
     "ff"  'counsel-find-file  ; find file using ivy
     "fr"  'counsel-recentf    ; find recently edited files
-    "pf"  'counsel-git        ; find file in git project
     "ft"  'treemacs ;;treemacs toogle
 
 	;; Applications
