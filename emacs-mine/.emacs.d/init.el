@@ -222,49 +222,10 @@
       (kbd "^") #'help-go-back
       (kbd "gh") #'help-follow-symbol)
 
-    ;; Initial states and keymaps for builtin Emacs packages.
+    ;; jj exits insert state
+     (key-chord-mode 1)
+     (key-chord-define evil-insert-state-map  "jj" 'evil-normal-state)
 
-    (evil-set-initial-state 'tabulated-list-mode 'motion)
-
-    (evil-set-initial-state 'flycheck-error-list-mode 'motion)
-
-    (evil-set-initial-state 'helpful-mode 'motion)
-
-    (evil-set-initial-state 'grep-mode 'normal)
-
-    (evil-set-initial-state 'occur-mode 'normal)
-    (with-eval-after-load 'replace
-      (evil-add-hjkl-bindings occur-mode-map))
-
-    (evil-set-initial-state 'tar-mode 'emacs)
-    (with-eval-after-load 'tar-mode
-      (evil-add-hjkl-bindings tar-mode-map))
-
-    (evil-set-initial-state 'profiler-report-mode 'motion)
-    (with-eval-after-load 'profiler
-      (evil-define-key 'motion profiler-report-mode-map
-        "K" 'profiler-report-describe-entry
-        "B" 'profiler-report-render-reversed-calltree))
-
-    (with-eval-after-load 'compile
-      ;; h (help) binding interferes with evil navigation.
-      (evil-define-key 'motion compilation-mode-map (kbd "h") #'evil-backward-char))
-
-    (evil-set-initial-state 'archive-mode 'emacs)
-    (with-eval-after-load 'arc-mode
-      (evil-define-key 'motion archive-mode-map
-        (kbd "q") 'kill-this-buffer
-        (kbd "RET") 'archive-extract
-        (kbd "o") 'archive-extract-other-window
-        (kbd "m") 'archive-mark
-        (kbd "x") 'archive-expunge
-        (kbd "U") 'archive-unmark-all-files
-        (kbd "j") 'archive-next-line
-        (kbd "k") 'archive-previous-line))
-
-	;; jj exits insert state
-	(key-chord-mode 1)
-	  (key-chord-define evil-insert-state-map  "jj" 'evil-normal-state)
    ;; Window Movement
      (define-key evil-normal-state-map (kbd "C-h") 'evil-window-left)
      (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
