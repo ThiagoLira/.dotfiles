@@ -375,6 +375,8 @@ Repeated invocations toggle between the two most recently open buffers."
     "pg" 'counsel-projectile-grep
     "pf" 'counsel-projectile
     "pp" 'counsel-projectile-switch-project 
+	"pc" 'projectile-compile-project 
+    "p!" 'projectile-run-async-shell-command-in-root 
    ;; quit
    "qq" 'kill-emacs
 
