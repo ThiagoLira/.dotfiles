@@ -512,9 +512,17 @@ Repeated invocations toggle between the two most recently open buffers."
 
   )
 
+(defun lira/org-insert-file-link ()
+  (interactive)
+  (let ((current-prefix-arg 4)) ;; emulate C-u
+    (call-interactively 'org-insert-link) ;; invoke align-regexp interactively
+    )
+  )
+
 (major-mode-hydra-bind org-mode "Org"
 
   ("ic" org-ref-ivy-insert-cite-link "citation")
+  ("if" lira/org-insert-file-link "insert link")
   ("," org-ctrl-c-ctrl-c "magic")
 )
 
@@ -1036,6 +1044,8 @@ the focus."
 (setenv "PATH" (concat "/usr/local/bin" path-separator (getenv "PATH")))
 (add-to-list 'exec-path "/usr/local/bin")
 
+(setenv "PATH" (concat "/usr/bin" path-separator (getenv "PATH")))
+(add-to-list 'exec-path "/usr/bin")
 
 (provide 'init)
 ;;; init.el ends here
