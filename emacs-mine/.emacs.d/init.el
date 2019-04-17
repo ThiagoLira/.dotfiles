@@ -136,12 +136,21 @@
   (projectile-mode +1)
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  ;; Useless if using counsel-projectile
+  (setq projectile-switch-project-action #'magit-status)
   )
 
 (use-package counsel-projectile
   :ensure t
   :config
   (counsel-projectile-mode +1)
+  )
+
+
+(defun switch-magit ()
+  "Open magit buffer when switching project via counsel-projectile."
+  (interactive)
+  (counsel-projectile-switch-project "v") 
   )
 
 ;; THEME AND GUI
@@ -341,6 +350,8 @@ Repeated invocations toggle between the two most recently open buffers."
   (split-window-right) 
   (windmove-right)) 
 
+
+
 (general-define-key
  :states '(normal visual insert emacs)
  :prefix "SPC"
@@ -374,7 +385,7 @@ Repeated invocations toggle between the two most recently open buffers."
     "p" '(:ignore t :which-key "project")
     "pg" 'counsel-projectile-grep
     "pf" 'counsel-projectile
-    "pp" 'counsel-projectile-switch-project 
+    "pp" 'switch-magit 
 	"pc" 'projectile-compile-project 
     "p!" 'projectile-run-async-shell-command-in-root 
    ;; quit
@@ -845,7 +856,7 @@ the focus."
   ;; Use a modern BibTeX dialect
   (bibtex-set-dialect 'biblatex)
   ;; Where to find citations 
-(setq reftex-default-bibliography '("~/modelo-latex/bibliografia.bib"))
+(setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
 (setq bibtex-completion-bibliography "~/Dropbox/bibliography/references.bib")
 )
 
