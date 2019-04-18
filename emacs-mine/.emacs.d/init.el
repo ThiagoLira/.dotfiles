@@ -520,8 +520,13 @@ Repeated invocations toggle between the two most recently open buffers."
   :config
 
   (setq org-ref-default-bibliography '("~/modelo-latex/bibliografia.bib"))
+  (setq reftex-default-bibliography '("~/modelo-latex/bibliografia.bib"))
 
   )
+
+(setq org-latex-pdf-process (list "latexmk -c %f" "latexmk -shell-escape -bibtex -f -pdf %f"))
+								  ;; "latexmk -c %f"))
+	  
 
 (defun lira/org-insert-file-link ()
   (interactive)
@@ -810,6 +815,12 @@ the focus."
   (setq LaTeX-csquotes-close-quote "}"
         LaTeX-csquotes-open-quote "\\enquote{"))
 
+
+(use-package reftex
+  :ensure t
+  :init (add-hook 'LaTeX-mode-hook #'reftex-mode))
+
+
 (use-package tex-fold                   ; TeX folding
   :ensure auctex
   :defer t
@@ -856,15 +867,15 @@ the focus."
   ;; Use a modern BibTeX dialect
   (bibtex-set-dialect 'biblatex)
   ;; Where to find citations 
-(setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
-(setq bibtex-completion-bibliography "~/Dropbox/bibliography/references.bib")
+(setq reftex-default-bibliography '("~/modelo-latex/bibliografia.bib"))
+(setq bibtex-completion-bibliography "~/modelo-latex/bibliografia.bib")
 )
 
 
 
 (add-hook 'LaTeX-mode-hook (lambda ()
                                 (push
-                                 '("latexmk" "latexmk -pdf %s" TeX-run-TeX nil t
+                                 '("latexmk" "latexmk -bibtex -pdf %s" TeX-run-TeX nil t
                                    :help "Run latexmk on file")
                                  TeX-command-list)))
 
