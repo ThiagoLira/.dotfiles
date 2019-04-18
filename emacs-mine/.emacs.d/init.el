@@ -524,21 +524,29 @@ Repeated invocations toggle between the two most recently open buffers."
 
   )
 
-(setq org-latex-pdf-process (list "latexmk -c %f" "latexmk -shell-escape -bibtex -f -pdf %f"))
-								  ;; "latexmk -c %f"))
+(setq org-latex-pdf-process (list "latexmk -bibtex -f -pdf %f"))
+
+;; "latexmk -c %f"))
 	  
 
 (defun lira/org-insert-file-link ()
   (interactive)
-  (let ((current-prefix-arg 4)) ;; emulate C-u
-    (call-interactively 'org-insert-link) ;; invoke align-regexp interactively
+  (let ((current-prefix-arg '(4))) ;; emulate C-u
+    (call-interactively 'org-insert-link) 
     )
   )
 
+(defun lira/org-export-last-settings ()
+  (interactive)
+  (let ((current-prefix-arg '(4))) ;; emulate C-u
+    (call-interactively 'org-export-dispatch) 
+    )
+  )
 (major-mode-hydra-bind org-mode "Org"
 
   ("ic" org-ref-ivy-insert-cite-link "citation")
   ("if" lira/org-insert-file-link "insert link")
+  ("e"  lira/org-export-last-settings "export")
   ("," org-ctrl-c-ctrl-c "magic")
 )
 
