@@ -517,6 +517,8 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package org-ref
   :ensure t
+  :init
+  (setq org-ref-completion-library 'org-ref-ivy-cite)
   :config
 
   (setq org-ref-default-bibliography '("~/modelo-latex/bibliografia.bib"))
@@ -1010,28 +1012,21 @@ the focus."
 
 
 ;; Python
-
-
 (use-package elpy
   :ensure t
-  :mode ("\\.py\\'" . python-mode)
+  :defer t
+  :init
+  (advice-add 'python-mode :before 'elpy-enable)
   :config
-  (elpy-enable)
-  
   (setq python-shell-interpreter "python3"
       python-shell-interpreter-args "-i"))
 
 
-(use-package eval-sexp-fu
-  :ensure t
-  :config
-  (setq eval-sexp-fu-flash-mode t))
 
 (defun elpy-eval-line ()
   "Evaluate the last sexp at the end of the current line."
   (interactive)
   (save-excursion (end-of-line) (elpy-shell-send-statement-and-step-and-go )))
-
 
 (major-mode-hydra-bind python-mode "REPL"
   ("se" elpy-shell-send-statement-and-step-and-go)
@@ -1086,6 +1081,7 @@ the focus."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(org-agenda-files (quote ("~/modelo-latex/paper-outline.org")))
  '(package-selected-packages
    (quote
     (counsel-projectile key-chord eterm-256color evil-magit magit slime shell-pop sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
