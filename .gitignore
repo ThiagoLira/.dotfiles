@@ -13,6 +13,8 @@ emacs-mine/.emacs.d/.cache/
 emacs-mine/.emacs.d/init.el~
 emacs-mine/.emacs.d/projectile-bookmarks.eld
 emacs-mine/.emacs.d/recentf~
+emacs-mine/.emacs.d/transient/
+emacs-mine/.emacs.d/history
 emacs/.emacs2.d/
 fish/.config/fish/fish_history
 fish/.config/fish/fish_variables
