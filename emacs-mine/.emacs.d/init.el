@@ -528,6 +528,8 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (setq org-latex-pdf-process (list "latexmk -bibtex -f -pdf %f"))
 
+(if (not *is-a-mac*) (add-to-list 'org-file-apps '("\\.pdf" . "evince %s")))
+
 ;; "latexmk -c %f"))
 	  
 
