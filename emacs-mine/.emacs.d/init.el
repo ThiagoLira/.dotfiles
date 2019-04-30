@@ -521,26 +521,12 @@ Repeated invocations toggle between the two most recently open buffers."
   :ensure t
   :mode ("\\.js\\'" . js2-mode))
 
-
-(use-package flow-minor-mode
-  :mode ("\\.js\\'" . js2-mode)
-  :ensure t)
-
-(use-package flow-js2-mode
-  :mode ("\\.js\\'" . js2-mode)
-  :ensure t)
-
-
-(use-package flycheck-flow
-  :mode ("\\.js\\'" . js2-mode)
+(use-package tide
   :ensure t
-  :config
-  (flycheck-add-mode 'javascript-flow 'js2-mode)
-
-  (flycheck-add-mode 'javascript-eslint 'js2-mode)
-  
-  (flycheck-add-next-checker 'javascript-flow 'javascript-eslint)
-  )
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save)))
 
 
 
@@ -1053,7 +1039,11 @@ the focus."
  '(org-agenda-files (quote ("~/modelo-latex/paper-outline.org")))
  '(package-selected-packages
    (quote
-    (flycheck-flow flow-js2-mode js2-mode counsel-projectile key-chord eterm-256color evil-magit magit slime shell-pop sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex))))
+    (tide flycheck-flow flow-js2-mode js2-mode counsel-projectile key-chord eterm-256color evil-magit magit slime shell-pop sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex)))
+ '(safe-local-variable-values
+   (quote
+    ((projectile-project-run-cmd . "npm run build")
+     (projectile-project-compilation-cmd . "npm run build")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -40,4 +40,4 @@ end
 
 
 
-rvm default
+# rvm default
