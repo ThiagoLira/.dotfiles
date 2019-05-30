@@ -137,7 +137,7 @@
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   ;; Useless if using counsel-projectile
-  (setq projectile-switch-project-action #'magit-status)
+  (setq projectile-switch-project-action #'projectile-dired)
   )
 
 (use-package counsel-projectile
@@ -147,10 +147,10 @@
   )
 
 
-(defun switch-magit ()
+(defun switch-dired()
   "Open magit buffer when switching project via counsel-projectile."
   (interactive)
-  (counsel-projectile-switch-project "v") 
+  (counsel-projectile-switch-project "D") 
   )
 
 ;; THEME AND GUI
@@ -385,7 +385,7 @@ Repeated invocations toggle between the two most recently open buffers."
     "p" '(:ignore t :which-key "project")
     "pg" 'counsel-projectile-grep
     "pf" 'counsel-projectile
-    "pp" 'switch-magit 
+    "pp" 'switch-dired
 	"pc" 'projectile-compile-project 
     "p!" 'projectile-run-async-shell-command-in-root 
    ;; quit
@@ -954,8 +954,9 @@ the focus."
   )
 
 
-;; Fish is the default shell
-(setq explicit-shell-file-name fish-location)
+;; bash is the default shell
+(setq explicit-shell-file-name "/bin/bash")
+(setq shell-file-name "/bin/bash")
 
 
 (use-package eterm-256color
@@ -1042,7 +1043,8 @@ the focus."
     (tide flycheck-flow flow-js2-mode js2-mode counsel-projectile key-chord eterm-256color evil-magit magit slime shell-pop sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex)))
  '(safe-local-variable-values
    (quote
-    ((projectile-project-run-cmd . "npm run build")
+    ((bibtex-file-path . "../bibliografia")
+     (projectile-project-run-cmd . "npm run build")
      (projectile-project-compilation-cmd . "npm run build")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
