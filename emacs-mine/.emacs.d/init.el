@@ -834,9 +834,13 @@ the focus."
   ;; Where to find citations 
 (setq reftex-default-bibliography '("~/modelo-latex/bibliografia.bib"))
 (setq bibtex-completion-bibliography "~/modelo-latex/bibliografia.bib")
+(setq bibtex-completion-library-path "~/modelo-latex/bibliografia.bib")
 )
 
-
+(use-package ivy-bibtex
+  :ensure t
+  :config 
+  (setq ivy-bibtex-default-action 'bibtex-completion-insert-citation))
 
 (add-hook 'LaTeX-mode-hook (lambda ()
                                 (push
@@ -850,6 +854,7 @@ the focus."
 (major-mode-hydra-bind latex-mode "Compilation"
   ("pc" TeX-command-master)
   ("pv" TeX-view ) 
+  ("ic" ivy-bibtex)
   ("q" nil))
 
 
@@ -1040,7 +1045,7 @@ the focus."
  '(org-agenda-files (quote ("~/modelo-latex/paper-outline.org")))
  '(package-selected-packages
    (quote
-    (tide flycheck-flow flow-js2-mode js2-mode counsel-projectile key-chord eterm-256color evil-magit magit slime shell-pop sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex)))
+    (ivy-bibtex tide flycheck-flow flow-js2-mode js2-mode counsel-projectile key-chord eterm-256color evil-magit magit slime shell-pop sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex)))
  '(safe-local-variable-values
    (quote
     ((bibtex-file-path . "../bibliografia")
