@@ -137,7 +137,7 @@
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   ;; Useless if using counsel-projectile
-  (setq projectile-switch-project-action #'magit-status)
+  (setq projectile-switch-project-action #'projectile-dired)
   )
 
 (use-package counsel-projectile
@@ -147,10 +147,10 @@
   )
 
 
-(defun switch-magit ()
+(defun switch-dired()
   "Open magit buffer when switching project via counsel-projectile."
   (interactive)
-  (counsel-projectile-switch-project "v") 
+  (counsel-projectile-switch-project "D") 
   )
 
 ;; THEME AND GUI
@@ -385,7 +385,7 @@ Repeated invocations toggle between the two most recently open buffers."
     "p" '(:ignore t :which-key "project")
     "pg" 'counsel-projectile-grep
     "pf" 'counsel-projectile
-    "pp" 'switch-magit 
+    "pp" 'switch-dired
 	"pc" 'projectile-compile-project 
     "p!" 'projectile-run-async-shell-command-in-root 
    ;; quit
@@ -959,8 +959,9 @@ the focus."
   )
 
 
-;; Fish is the default shell
-(setq explicit-shell-file-name fish-location)
+;; bash is the default shell
+(setq explicit-shell-file-name "/bin/bash")
+(setq shell-file-name "/bin/bash")
 
 
 (use-package eterm-256color
