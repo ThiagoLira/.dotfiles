@@ -1047,7 +1047,8 @@ the focus."
     (ivy-bibtex tide flycheck-flow flow-js2-mode js2-mode counsel-projectile key-chord eterm-256color evil-magit magit slime shell-pop sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex)))
  '(safe-local-variable-values
    (quote
-    ((projectile-project-run-cmd . "npm run build")
+    ((bibtex-file-path . "../bibliografia")
+     (projectile-project-run-cmd . "npm run build")
      (projectile-project-compilation-cmd . "npm run build")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
