@@ -949,20 +949,18 @@ the focus."
 
 
 
-;; Shell
 
-(use-package shell-pop
-  :ensure t
-  :config
-  (setq shell-pop-shell-type '("ansi-term" "*ansi-term*" (lambda nil (term))))
-  (setq shell-pop-term-shell fish-location)
-  )
+;; Shell
 
 
 ;; bash is the default shell
 (setq explicit-shell-file-name "/bin/bash")
 (setq shell-file-name "/bin/bash")
 
+;; instead of trying to guess on each input, we just tell it we're left to right.
+ (add-hook 'term-mode-hook
+      (defun my-term-mode-hook ()
+	(setq bidi-paragraph-direction 'left-to-right)))
 
 (use-package eterm-256color
   :ensure t
@@ -1045,7 +1043,7 @@ the focus."
  '(org-agenda-files (quote ("~/modelo-latex/paper-outline.org")))
  '(package-selected-packages
    (quote
-    (ivy-bibtex tide flycheck-flow flow-js2-mode js2-mode counsel-projectile key-chord eterm-256color evil-magit magit slime shell-pop sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex)))
+    (exwm vterm emacs-libvterm libvterm ivy-bibtex tide flycheck-flow flow-js2-mode js2-mode counsel-projectile key-chord eterm-256color evil-magit magit slime shell-pop sly elisp-format org-evil monitor eval-sexp-fu elpy projectile tex company-auctex auctex-latexmk latex-preview-pane which-key use-package treemacs-evil org-plus-contrib noflet major-mode-hydra general flycheck-haskell exec-path-from-shell evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-iedit-state evil-collection el-patch doom-themes doom-modeline dash-functional dante counsel company-cabal cider auctex)))
  '(safe-local-variable-values
    (quote
     ((bibtex-file-path . "../bibliografia")
