@@ -4,7 +4,7 @@ set -gx PATH  ~/bin  $PATH
 # multiple emacs
 
 
-alias emacsd 'emacs -q -l ~/.emacs2.d/init.el'
+alias emacsd 'emacs -q -l ~/spacemacs/.emacs.d/init.el'
 
 # easily ls dot repositories
 
