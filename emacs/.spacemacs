@@ -50,7 +50,6 @@ This function should only modify configuration layer settings."
       helm
       haskell
       python
-      notebook
       markdown
       multiple-cursors
       org
