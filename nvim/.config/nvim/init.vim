@@ -27,9 +27,8 @@ Plug 'sheerun/vim-polyglot'
 Plug 'flazz/vim-colorschemes'
 Plug 'nvie/vim-flake8'
 Plug 'kien/ctrlp.vim'
-Plug 'scrooloose/nerdtree'
+Plug 'dense-analysis/ale'
 Plug 'scrooloose/nerdcommenter'
-Plug 'w0rp/ale'
 Plug 'tpope/vim-surround'
 Plug 'christoomey/vim-tmux-navigator'
 " DEOPLETE STUFF
@@ -87,15 +86,6 @@ endif
 
 
 let mapleader=','
-
-" nerdtree config
-map <C-n> :NERDTreeToggle<CR>
-let NERDTreeMinimalUI = 1
-let NERDTreeDirArrows = 1
-let NERDTreeAutoDeleteBuffer = 1
-nnoremap <silent> <Leader>f :NERDTreeFind<CR>
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
 
 
