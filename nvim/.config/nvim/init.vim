@@ -27,7 +27,6 @@ Plug 'sheerun/vim-polyglot'
 Plug 'flazz/vim-colorschemes'
 Plug 'nvie/vim-flake8'
 Plug 'kien/ctrlp.vim'
-Plug 'scrooloose/nerdtree'
 Plug 'scrooloose/nerdcommenter'
 Plug 'w0rp/ale'
 Plug 'tpope/vim-surround'
@@ -76,7 +75,7 @@ set visualbell           " don't beep
 set noerrorbells         " don't beep
 
 
-colorscheme Monokai
+colorscheme wombat 
 
 if &term =~ '256color'
   " disable Background Color Erase (BCE) so that color schemes
@@ -87,16 +86,6 @@ endif
 
 
 let mapleader=','
-
-" nerdtree config
-map <C-n> :NERDTreeToggle<CR>
-let NERDTreeMinimalUI = 1
-let NERDTreeDirArrows = 1
-let NERDTreeAutoDeleteBuffer = 1
-nnoremap <silent> <Leader>f :NERDTreeFind<CR>
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-
 
 
 autocmd BufWritePost *.py call Flake8()
