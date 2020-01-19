@@ -23,14 +23,11 @@ endif
 call plug#begin('~/.config/nvim/plugged')
 
 
-Plug 'sheerun/vim-polyglot'
 Plug 'flazz/vim-colorschemes'
-Plug 'nvie/vim-flake8'
 Plug 'kien/ctrlp.vim'
 Plug 'dense-analysis/ale'
 Plug 'scrooloose/nerdcommenter'
 Plug 'tpope/vim-surround'
-Plug 'christoomey/vim-tmux-navigator'
 " DEOPLETE STUFF
 if has('nvim')
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -85,10 +82,9 @@ if &term =~ '256color'
 endif
 
 
-let mapleader=','
+let mapleader=' '
 
 
-autocmd BufWritePost *.py call Flake8()
 
 " Open new split panes to right and bottom, which feels more natural
 set splitbelow
@@ -100,12 +96,11 @@ nmap <c-k> <c-w>k
 nmap <c-l> <c-w>l
 nmap <c-h> <c-w>h
 
-nmap <LEADER>v :vsplit<CR>
-nmap <LEADER>s :split<CR>
+nmap <LEADER>w- :split<CR>
+nmap <LEADER>w<bar> :vsplit<CR>
 
-"+ and - to resize splited windows"
-map - <C-W>-
-map = <C-W>+
+
+let g:ctrlp_map = '<LEADER>pf' 
 
 
 
