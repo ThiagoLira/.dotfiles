@@ -54,6 +54,7 @@ This function should only modify configuration layer settings."
       markdown
       multiple-cursors
       org
+      bibtex
       (latex :variables
              latex-build-command "LatexMk"
              TeX-master nil
@@ -485,6 +486,22 @@ before packages are loaded."
   ;;aspell
   (setq ispell-program-name "/usr/local/bin/aspell")
 
+  ;; projectile minha tese
+  (projectile-register-project-type 'latexmk '("latexmkrc")
+                                    :compile "latexmk")
+
+  (setq reftex-default-bibliography '("~/Dropbox/Notes/bibliografia.bib"))
+
+  (setq org-ref-default-bibliography '("~/Dropbox/Notes/bibliografia.bib"))
+
+  ;; see org-ref for use of these variables
+
+  (setq org-default-notes-file "~/Dropbox/Notes/Notas.org")
+
+  (setq org-capture-templates
+                     '(("n"  "Quick Note" entry (file+headline "~/Dropbox/Notes/Notas.org" "Quick Note")
+                        "* %t %a")
+                ))
 
   ;; Org-mode
   (with-eval-after-load 'org
@@ -493,7 +510,7 @@ before packages are loaded."
     (setq org-link-file-path-type 'relative)
     (setq org-image-actual-width (/ (display-pixel-width)
                                     5))
-    (setq org-export-babel-evaluate nil)
+    (setq org-export-babel-evaluate 1)
     (setq org-startup-indented t)
     ;; Update images from babel code blocks automatically
     (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
