@@ -490,6 +490,7 @@ before packages are loaded."
   (projectile-register-project-type 'latexmk '("latexmkrc")
                                     :compile "latexmk")
 
+
   (setq reftex-default-bibliography '("~/Dropbox/Notes/bibliografia.bib"))
 
   (setq org-ref-default-bibliography '("~/Dropbox/Notes/bibliografia.bib"))
@@ -503,7 +504,12 @@ before packages are loaded."
                         "* %t %a")
                 ))
 
+
   ;; Org-mode
+  (setq org-latex-pdf-process (list
+                               "latexmk -bibtex -pdf -f  %f"))
+
+
   (with-eval-after-load 'org
     (setq org-export-backends '(beamer html latex md))
     (setq org-confirm-babel-evaluate nil)
@@ -516,11 +522,7 @@ before packages are loaded."
     (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
     (setq org-src-fontify-natively t)
     (setq org-src-tab-acts-natively t)
-    (org-babel-do-load-languages 'org-babel-load-languages
-                                 '((ipython . t)
-                                   (ein . t)
-                                   (shell . t)
-                                   (clojure . t))))
+    )
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
