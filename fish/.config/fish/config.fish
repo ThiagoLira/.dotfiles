@@ -38,5 +38,5 @@ function fish_title
   true
 end
 
-set PATH ~/.emacs.d/bin/
+set PATH ~/.emacs.d/bin/ $PATH
 
