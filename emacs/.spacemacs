@@ -203,8 +203,7 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(
-                         birds-of-paradise-plus
+   dotspacemacs-themes '(spolsky
                           spacemacs-light)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
@@ -487,8 +486,7 @@ before packages are loaded."
   (setq ispell-program-name "/usr/local/bin/aspell")
 
   ;; projectile minha tese
-  (projectile-register-project-type 'latexmk '("latexmkrc")
-                                    :compile "latexmk")
+  (projectile-register-project-type 'latexmk '("latexmkrc") :compile "latexmk")
 
 
   (setq reftex-default-bibliography '("~/Dropbox/Notes/bibliografia.bib"))
@@ -502,20 +500,24 @@ before packages are loaded."
   (setq org-capture-templates
                      '(("n"  "Quick Note" entry (file+headline "~/Dropbox/Notes/Notas.org" "Quick Note")
                         "* %t %a")
-                ))
+                       ))
 
+
+  ;; add to Mac PATH
+  (setq exec-path (append  '("/usr/local/bin") exec-path))
 
   ;; Org-mode
-  (setq org-latex-pdf-process (list
-                               "latexmk -bibtex -pdf -f  %f"))
+  (setq org-latex-pdf-process (list "latexmk -bibtex -pdf -f  %f"))
 
 
   (with-eval-after-load 'org
+
+    (setq org-babel-python-command "python3")
+
     (setq org-export-backends '(beamer html latex md))
     (setq org-confirm-babel-evaluate nil)
     (setq org-link-file-path-type 'relative)
-    (setq org-image-actual-width (/ (display-pixel-width)
-                                    5))
+    (setq org-image-actual-width (/ (display-pixel-width) 5))
     (setq org-export-babel-evaluate 1)
     (setq org-startup-indented t)
     ;; Update images from babel code blocks automatically
@@ -537,9 +539,28 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(evil-want-Y-yank-to-eol nil)
+ '(hl-todo-keyword-faces
+   (quote
+    (("TODO" . "#dc752f")
+     ("NEXT" . "#dc752f")
+     ("THEM" . "#2d9574")
+     ("PROG" . "#3a81c3")
+     ("OKAY" . "#3a81c3")
+     ("DONT" . "#f2241f")
+     ("FAIL" . "#f2241f")
+     ("DONE" . "#42ae2c")
+     ("NOTE" . "#b1951d")
+     ("KLUDGE" . "#b1951d")
+     ("HACK" . "#b1951d")
+     ("TEMP" . "#b1951d")
+     ("FIXME" . "#dc752f")
+     ("XXX+" . "#dc752f")
+     ("\\?\\?\\?+" . "#dc752f"))))
  '(package-selected-packages
    (quote
-    (toml-mode racer flycheck-rust cargo rust-mode helm-rtags google-c-style flycheck-rtags disaster cpp-auto-include company-rtags rtags company-c-headers clang-format flyspell-correct-helm flyspell-correct auto-dictionary web-mode tagedit slim-mode scss-mode sass-mode pug-mode impatient-mode helm-css-scss haml-mode emmet-mode counsel-css company-web web-completion-data add-node-modules-path birds-of-paradise-plus-theme yapfify xterm-color web-beautify tide typescript-mode shell-pop reveal-in-osx-finder pytest pyenv-mode py-isort prettier-js pippel pipenv pyvenv pip-requirements osx-trash osx-dictionary osx-clipboard nodejs-repl multi-term lsp-haskell lsp-mode livid-mode skewer-mode simple-httpd live-py-mode launchctl json-navigator hierarchy json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc intero importmagic epc ctable concurrent deferred hlint-refactor hindent helm-pydoc helm-hoogle haskell-snippets flycheck-haskell eshell-z eshell-prompt-extras esh-help dante lcr cython-mode company-tern dash-functional tern company-reftex company-ghci company-ghc ghc haskell-mode company-cabal company-auctex company-anaconda cmm-mode blacken auctex-latexmk auctex anaconda-mode pythonic yasnippet-snippets unfill smeargle orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-cliplink org-brain mwim mmm-mode markdown-toc markdown-mode magit-svn magit-gitflow magit-popup htmlize helm-org-rifle helm-gitignore helm-git-grep helm-company helm-c-yasnippet gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md fuzzy flycheck-pos-tip pos-tip evil-org evil-magit magit transient git-commit with-editor diff-hl company-statistics company browse-at-remote auto-yasnippet yasnippet ac-ispell auto-complete ws-butler writeroom-mode visual-fill-column winum volatile-highlights vi-tilde-fringe uuidgen treemacs-projectile treemacs-evil treemacs ht pfuture toc-org symon symbol-overlay string-inflection spaceline-all-the-icons spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode password-generator paradox spinner overseer org-bullets open-junk-file nameless move-text macrostep lorem-ipsum link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-xref helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flycheck-package package-lint flycheck flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state iedit evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens smartparens paredit evil-args evil-anzu anzu eval-sexp-fu elisp-slime-nav editorconfig dumb-jump doom-modeline shrink-path all-the-icons memoize f dash s devdocs define-word counsel-projectile projectile counsel swiper ivy pkg-info epl column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile packed aggressive-indent ace-window ace-link ace-jump-helm-line helm avy helm-core popup which-key use-package pcre2el org-plus-contrib hydra lv font-lock+ evil goto-chg undo-tree dotenv-mode diminish bind-map bind-key async)))
+    (sublime-themes toml-mode racer flycheck-rust cargo rust-mode helm-rtags google-c-style flycheck-rtags disaster cpp-auto-include company-rtags rtags company-c-headers clang-format flyspell-correct-helm flyspell-correct auto-dictionary web-mode tagedit slim-mode scss-mode sass-mode pug-mode impatient-mode helm-css-scss haml-mode emmet-mode counsel-css company-web web-completion-data add-node-modules-path birds-of-paradise-plus-theme yapfify xterm-color web-beautify tide typescript-mode shell-pop reveal-in-osx-finder pytest pyenv-mode py-isort prettier-js pippel pipenv pyvenv pip-requirements osx-trash osx-dictionary osx-clipboard nodejs-repl multi-term lsp-haskell lsp-mode livid-mode skewer-mode simple-httpd live-py-mode launchctl json-navigator hierarchy json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc intero importmagic epc ctable concurrent deferred hlint-refactor hindent helm-pydoc helm-hoogle haskell-snippets flycheck-haskell eshell-z eshell-prompt-extras esh-help dante lcr cython-mode company-tern dash-functional tern company-reftex company-ghci company-ghc ghc haskell-mode company-cabal company-auctex company-anaconda cmm-mode blacken auctex-latexmk auctex anaconda-mode pythonic yasnippet-snippets unfill smeargle orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-cliplink org-brain mwim mmm-mode markdown-toc markdown-mode magit-svn magit-gitflow magit-popup htmlize helm-org-rifle helm-gitignore helm-git-grep helm-company helm-c-yasnippet gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md fuzzy flycheck-pos-tip pos-tip evil-org evil-magit magit transient git-commit with-editor diff-hl company-statistics company browse-at-remote auto-yasnippet yasnippet ac-ispell auto-complete ws-butler writeroom-mode visual-fill-column winum volatile-highlights vi-tilde-fringe uuidgen treemacs-projectile treemacs-evil treemacs ht pfuture toc-org symon symbol-overlay string-inflection spaceline-all-the-icons spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode password-generator paradox spinner overseer org-bullets open-junk-file nameless move-text macrostep lorem-ipsum link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-xref helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flycheck-package package-lint flycheck flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state iedit evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens smartparens paredit evil-args evil-anzu anzu eval-sexp-fu elisp-slime-nav editorconfig dumb-jump doom-modeline shrink-path all-the-icons memoize f dash s devdocs define-word counsel-projectile projectile counsel swiper ivy pkg-info epl column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile packed aggressive-indent ace-window ace-link ace-jump-helm-line helm avy helm-core popup which-key use-package pcre2el org-plus-contrib hydra lv font-lock+ evil goto-chg undo-tree dotenv-mode diminish bind-map bind-key async)))
+ '(pdf-view-midnight-colors (quote ("#655370" . "#fbf8ef")))
  '(safe-local-variable-values
    (quote
     ((org-download-image-dir . "~/Dropbox/Notes/imagens")
