@@ -28,23 +28,37 @@ Plug 'kien/ctrlp.vim'
 Plug 'dense-analysis/ale'
 Plug 'scrooloose/nerdcommenter'
 Plug 'tpope/vim-surround'
-" DEOPLETE STUFF
-if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-else
-  Plug 'Shougo/deoplete.nvim'
-  Plug 'roxma/nvim-yarp'
-  Plug 'roxma/vim-hug-neovim-rpc'
-endif
-let g:deoplete#enable_at_startup = 1
-
+Plug 'chuling/ci_dark'
+Plug 'luochen1990/rainbow'
+Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 
 " Initialize plugin system
 
 call plug#end()
 filetype plugin indent on    " required
-
 filetype on
+
+
+
+" CoC stuff
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <silent><expr> <C-space> coc#refresh()
+
+"GoTo code navigation
+nmap <leader>g <C-o>
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gt <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+nmap <leader>rn <Plug>(coc-rename)
+
+"show all diagnostics.
+nnoremap <silent> <space>d :<C-u>CocList diagnostics<cr>
+"manage extensions.
+nnoremap <silent> <space>e :<C-u>CocList extensions<cr>
+
 
 
 set termguicolors
@@ -72,7 +86,18 @@ set visualbell           " don't beep
 set noerrorbells         " don't beep
 
 
-colorscheme wombat 
+
+" THEME STUFF
+colorscheme ci_dark
+
+set fillchars+=vert:│
+
+let g:airline_theme = 'ci_dark'
+let g:lightline = {
+  \ 'colorscheme': 'ci_dark',
+}
+
+
 
 if &term =~ '256color'
   " disable Background Color Erase (BCE) so that color schemes

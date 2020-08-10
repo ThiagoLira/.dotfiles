@@ -486,7 +486,7 @@ before packages are loaded."
   (setq ispell-program-name "/usr/local/bin/aspell")
 
   ;; projectile minha tese
-  (projectile-register-project-type 'latexmk '("latexmkrc") :compile "latexmk")
+  ;; (projectile-register-project-type 'latexmk '("latexmkrc") :compile "latexmk")
 
 
   (setq reftex-default-bibliography '("~/Dropbox/Notes/bibliografia.bib"))
