@@ -24,15 +24,16 @@ call plug#begin('~/.config/nvim/plugged')
 
 
 Plug 'flazz/vim-colorschemes'
-Plug 'kien/ctrlp.vim'
 Plug 'dense-analysis/ale'
 Plug 'scrooloose/nerdcommenter'
 Plug 'tpope/vim-surround'
 Plug 'chuling/ci_dark'
 Plug 'luochen1990/rainbow'
 Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 
-" Initialize plugin system
+
 
 call plug#end()
 filetype plugin indent on    " required
@@ -58,6 +59,15 @@ nmap <leader>rn <Plug>(coc-rename)
 nnoremap <silent> <space>d :<C-u>CocList diagnostics<cr>
 "manage extensions.
 nnoremap <silent> <space>e :<C-u>CocList extensions<cr>
+
+
+" fzv stuff 
+
+" this is the default extra key bindings
+let g:fzf_action = {
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
 
 
 
@@ -93,9 +103,7 @@ colorscheme ci_dark
 set fillchars+=vert:│
 
 let g:airline_theme = 'ci_dark'
-let g:lightline = {
-  \ 'colorscheme': 'ci_dark',
-}
+let g:lightline = { 'colorscheme': 'ci_dark' }
 
 
 
@@ -125,8 +133,6 @@ nmap <LEADER>w- :split<CR>
 nmap <LEADER>w<bar> :vsplit<CR>
 
 
-let g:ctrlp_map = '<LEADER>pf' 
-
 
 
 "add relative numbering"
@@ -139,6 +145,11 @@ set mouse=a
 
 " Switch between the last two files
 nnoremap <Leader><Leader> <C-^>
+
+"fzf basic action
+nnoremap <silent> <LEADER>fp :FZF -m<cr>
+
+nnoremap <silent> <LEADER>ff :FZF ~<cr> 
 
 
 "Remove all trailing whitespace by pressing F5
