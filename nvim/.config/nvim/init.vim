@@ -23,15 +23,9 @@ endif
 call plug#begin('~/.config/nvim/plugged')
 
 
-Plug 'flazz/vim-colorschemes'
-Plug 'dense-analysis/ale'
 Plug 'scrooloose/nerdcommenter'
 Plug 'tpope/vim-surround'
-Plug 'chuling/ci_dark'
-Plug 'luochen1990/rainbow'
-Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
 
 
 
@@ -39,26 +33,6 @@ call plug#end()
 filetype plugin indent on    " required
 filetype on
 
-
-
-" CoC stuff
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap <silent><expr> <C-space> coc#refresh()
-
-"GoTo code navigation
-nmap <leader>g <C-o>
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gt <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-
-nmap <leader>rn <Plug>(coc-rename)
-
-"show all diagnostics.
-nnoremap <silent> <space>d :<C-u>CocList diagnostics<cr>
-"manage extensions.
-nnoremap <silent> <space>e :<C-u>CocList extensions<cr>
 
 
 " fzv stuff 
@@ -97,24 +71,6 @@ set noerrorbells         " don't beep
 
 
 
-" THEME STUFF
-colorscheme ci_dark
-
-set fillchars+=vert:│
-
-let g:airline_theme = 'ci_dark'
-let g:lightline = { 'colorscheme': 'ci_dark' }
-
-
-
-if &term =~ '256color'
-  " disable Background Color Erase (BCE) so that color schemes
-  " render properly when inside 256-color tmux and GNU screen.
-  " see also http://snk.tuxfamily.org/log/vim-256color-bce.html
-  set t_ut=
-endif
-
-
 let mapleader=' '
 
 
@@ -134,7 +90,6 @@ nmap <LEADER>w<bar> :vsplit<CR>
 
 
 
-
 "add relative numbering"
 set number relativenumber
 
@@ -144,13 +99,20 @@ set mouse=a
 
 
 " Switch between the last two files
-nnoremap <Leader><Leader> <C-^>
+nnoremap <Leader><Tab> <C-^>
 
-"fzf basic action
-nnoremap <silent> <LEADER>fp :FZF -m<cr>
-
-nnoremap <silent> <LEADER>ff :FZF ~<cr> 
 
 
 "Remove all trailing whitespace by pressing F5
 nnoremap <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
+
+
+
+if exists('g:vscode')
+    "simular spacemacs aqui"
+    nnoremap <LEADER>t <Cmd>call VSCodeNotify('workbench.action.terminal.focus')<CR>
+    nnoremap <LEADER><LEADER> <Cmd>call VSCodeNotify('workbench.action.showCommands')<CR>
+else
+    nnoremap <silent> <LEADER>fp :FZF -m<cr>
+    nnoremap <silent> <LEADER>ff :FZF ~<cr> 
+endif
