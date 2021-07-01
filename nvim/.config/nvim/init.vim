@@ -112,6 +112,7 @@ if exists('g:vscode')
     "simular spacemacs aqui"
     nnoremap <LEADER>t <Cmd>call VSCodeNotify('workbench.action.terminal.focus')<CR>
     nnoremap <LEADER><LEADER> <Cmd>call VSCodeNotify('workbench.action.showCommands')<CR>
+    nnoremap <LEADER>ff <Cmd>call VSCodeNotify('workbench.action.quickOpen')<CR>
 else
     nnoremap <silent> <LEADER>fp :FZF -m<cr>
     nnoremap <silent> <LEADER>ff :FZF ~<cr> 
