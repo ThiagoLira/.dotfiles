@@ -23,28 +23,26 @@ endif
 call plug#begin('~/.config/nvim/plugged')
 
 
-Plug 'flazz/vim-colorschemes'
-Plug 'kien/ctrlp.vim'
-Plug 'dense-analysis/ale'
 Plug 'scrooloose/nerdcommenter'
 Plug 'tpope/vim-surround'
-" DEOPLETE STUFF
-if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-else
-  Plug 'Shougo/deoplete.nvim'
-  Plug 'roxma/nvim-yarp'
-  Plug 'roxma/vim-hug-neovim-rpc'
-endif
-let g:deoplete#enable_at_startup = 1
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 
 
-" Initialize plugin system
 
 call plug#end()
 filetype plugin indent on    " required
-
 filetype on
+
+
+
+" fzv stuff 
+
+" this is the default extra key bindings
+let g:fzf_action = {
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
+
 
 
 set termguicolors
@@ -72,15 +70,6 @@ set visualbell           " don't beep
 set noerrorbells         " don't beep
 
 
-colorscheme wombat 
-
-if &term =~ '256color'
-  " disable Background Color Erase (BCE) so that color schemes
-  " render properly when inside 256-color tmux and GNU screen.
-  " see also http://snk.tuxfamily.org/log/vim-256color-bce.html
-  set t_ut=
-endif
-
 
 let mapleader=' '
 
@@ -100,9 +89,6 @@ nmap <LEADER>w- :split<CR>
 nmap <LEADER>w<bar> :vsplit<CR>
 
 
-let g:ctrlp_map = '<LEADER>pf' 
-
-
 
 "add relative numbering"
 set number relativenumber
@@ -113,8 +99,21 @@ set mouse=a
 
 
 " Switch between the last two files
-nnoremap <Leader><Leader> <C-^>
+nnoremap <Leader><Tab> <C-^>
+
 
 
 "Remove all trailing whitespace by pressing F5
 nnoremap <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
+
+
+
+if exists('g:vscode')
+    "simular spacemacs aqui"
+    nnoremap <LEADER>t <Cmd>call VSCodeNotify('workbench.action.terminal.focus')<CR>
+    nnoremap <LEADER><LEADER> <Cmd>call VSCodeNotify('workbench.action.showCommands')<CR>
+    nnoremap <LEADER>ff <Cmd>call VSCodeNotify('workbench.action.quickOpen')<CR>
+else
+    nnoremap <silent> <LEADER>fp :FZF -m<cr>
+    nnoremap <silent> <LEADER>ff :FZF ~<cr> 
+endif
