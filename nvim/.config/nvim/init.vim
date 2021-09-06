@@ -110,9 +110,10 @@ nnoremap <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
 
 if exists('g:vscode')
     "simular spacemacs aqui"
-    nnoremap <LEADER>t <Cmd>call VSCodeNotify('workbench.action.terminal.focus')<CR>
     nnoremap <LEADER><LEADER> <Cmd>call VSCodeNotify('workbench.action.showCommands')<CR>
     nnoremap <LEADER>ff <Cmd>call VSCodeNotify('workbench.action.quickOpen')<CR>
+
+    nnoremap <c-t> <Cmd>call VSCodeNotify('workbench.action.terminal.focus')<CR>
 else
     nnoremap <silent> <LEADER>fp :FZF -m<cr>
     nnoremap <silent> <LEADER>ff :FZF ~<cr> 
