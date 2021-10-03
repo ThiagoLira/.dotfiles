@@ -101,11 +101,12 @@ set mouse=a
 " Switch between the last two files
 nnoremap <Leader><Tab> <C-^>
 
+nnoremap <F4> :!make clean main run<CR>
+nnoremap <Leader>sv :source $MYVIMRC<CR>
 
 
 "Remove all trailing whitespace by pressing F5
 nnoremap <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
-
 
 
 if exists('g:vscode')
