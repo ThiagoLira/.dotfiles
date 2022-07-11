@@ -9,7 +9,6 @@ return require('packer').startup(function(use)
   use 'Olical/aniseed'
   use 'bakpakin/fennel'
   use 'Olical/conjure'
-  require'lspconfig'.pyright.setup{}  
   if packer_bootstrap then
     require('packer').sync()
   end
