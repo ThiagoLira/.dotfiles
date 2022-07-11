@@ -1,48 +1,5 @@
 set nocompatible              " be iMproved, required
-filetype off                  " required
-
-
-"-----PLUGINS-----
-
-" check whether vim-plug is installed and install it if necessary
-let plugpath = expand('<sfile>:p:h'). '/autoload/plug.vim'
-if !filereadable(plugpath)
-    if executable('curl')
-        let plugurl = 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-        call system('curl -fLo ' . shellescape(plugpath) . ' --create-dirs ' . plugurl)
-        if v:shell_error
-            echom "Error downloading vim-plug. Please install it manually.\n"
-            exit
-        endif
-    else
-        echom "vim-plug not installed. Please install it manually or install curl.\n"
-        exit
-    endif
-endif
-
-call plug#begin('~/.config/nvim/plugged')
-
-
-Plug 'scrooloose/nerdcommenter'
-Plug 'tpope/vim-surround'
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-
-
-
-call plug#end()
-filetype plugin indent on    " required
 filetype on
-
-
-
-" fzv stuff 
-
-" this is the default extra key bindings
-let g:fzf_action = {
-  \ 'ctrl-t': 'tab split',
-  \ 'ctrl-x': 'split',
-  \ 'ctrl-v': 'vsplit' }
-
 
 
 set termguicolors
@@ -70,10 +27,7 @@ set visualbell           " don't beep
 set noerrorbells         " don't beep
 
 
-
-let mapleader=' '
-
-
+let maplocalleader=","
 
 " Open new split panes to right and bottom, which feels more natural
 set splitbelow
@@ -115,7 +69,10 @@ if exists('g:vscode')
     nnoremap <LEADER>ff <Cmd>call VSCodeNotify('workbench.action.quickOpen')<CR>
 
     nnoremap <c-t> <Cmd>call VSCodeNotify('workbench.action.terminal.focus')<CR>
-else
-    nnoremap <silent> <LEADER>fp :FZF -m<cr>
-    nnoremap <silent> <LEADER>ff :FZF ~<cr> 
 endif
+
+source setup.lua
+
+"lua << EOF
+"require('init')
+"EOF
