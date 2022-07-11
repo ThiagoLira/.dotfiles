@@ -71,8 +71,6 @@ if exists('g:vscode')
     nnoremap <c-t> <Cmd>call VSCodeNotify('workbench.action.terminal.focus')<CR>
 endif
 
-source setup.lua
-
-"lua << EOF
-"require('init')
-"EOF
+lua << EOF
+require('setup')
+EOF

@@ -6,7 +6,6 @@ end
 
 return require('packer').startup(function(use)
   use 'wbthomason/packer.nvim' 
-  use 'neovim/nvim-lspconfig' 
   use 'Olical/aniseed'
   use 'bakpakin/fennel'
   use 'Olical/conjure'
