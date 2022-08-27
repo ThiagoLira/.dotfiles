@@ -10,7 +10,11 @@ return require('packer').startup(function(use)
   use 'bakpakin/fennel'
   use 'Olical/conjure'
   use 'tomasr/molokai'
+  use 'williamboman/mason.nvim'
+  use "williamboman/mason-lspconfig.nvim"
+  use 'neovim/nvim-lspconfig' 
   if packer_bootstrap then
     require('packer').sync()
   end
 end)
+

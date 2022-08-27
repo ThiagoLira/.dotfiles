@@ -73,6 +73,7 @@ endif
 
 lua << EOF
 require('setup')
+require('main')
 EOF
 
 colorscheme molokai
