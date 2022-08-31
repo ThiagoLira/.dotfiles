@@ -35,14 +35,10 @@ end
 
 
 
-
--- LSP STUFF
 require("mason").setup()
 require("mason-lspconfig").setup()
 
--- python
 require'lspconfig'.pylsp.setup{on_attach=on_attach}
-
-
+require'lspconfig'.rust_analyzer.setup{on_attach=on_attach}
 
 

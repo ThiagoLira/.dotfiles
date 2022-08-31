@@ -72,8 +72,8 @@ if exists('g:vscode')
 endif
 
 lua << EOF
-require('setup')
-require('main')
+require('init')
+require('lsp')
 EOF
 
 colorscheme molokai
