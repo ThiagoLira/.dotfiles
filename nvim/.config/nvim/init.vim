@@ -76,4 +76,5 @@ require('init')
 require('lsp')
 EOF
 
+set completeopt=menu,menuone,noselect
 colorscheme molokai
