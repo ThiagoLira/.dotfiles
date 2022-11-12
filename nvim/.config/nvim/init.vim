@@ -28,6 +28,7 @@ set noerrorbells         " don't beep
 
 
 let maplocalleader=","
+let mapleader=","
 
 " Open new split panes to right and bottom, which feels more natural
 set splitbelow
@@ -63,17 +64,10 @@ nnoremap <Leader>sv :source $MYVIMRC<CR>
 nnoremap <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
 
 
-if exists('g:vscode')
-    "simular spacemacs aqui"
-    nnoremap <LEADER><LEADER> <Cmd>call VSCodeNotify('workbench.action.showCommands')<CR>
-    nnoremap <LEADER>ff <Cmd>call VSCodeNotify('workbench.action.quickOpen')<CR>
-
-    nnoremap <c-t> <Cmd>call VSCodeNotify('workbench.action.terminal.focus')<CR>
-endif
-
 lua << EOF
-require('init')
+require('plugins')
 require('lsp')
+require('keymaps')
 EOF
 
 set completeopt=menu,menuone,noselect
