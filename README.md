@@ -1,8 +1,7 @@
 # .dotfiles
-My colletion of config files for Vim, Tmux, Fish and Bash.
+My colletion of config files for Vim, Neovim, Emacs, kitty terminal and every other waste of time I can find.
 
-To symlink all files to their rightful home locations and initialize all git nested dirs, run link_final_setup.sh
+run stow DIR for each program
 
-Install fish and them run omfish.sh
 
-Shamelessly copied from https://github.com/nicknisi/dotfiles
+

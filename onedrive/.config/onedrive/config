@@ -1,4 +1,0 @@
-skip_file = "~*|.~*|*.tmp"
-skip_file = "*.pyc"
-skip_dir = ".git|.vscode|__pycache__|.ipynb_checkpoints"
-check_nosync = "true"
