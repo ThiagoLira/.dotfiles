@@ -47,8 +47,6 @@ nmap <LEADER>w<bar> :vsplit<CR>
 
 "add relative numbering"
 set number relativenumber
-
-
 set mouse=a
 
 

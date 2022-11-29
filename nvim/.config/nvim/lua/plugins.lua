@@ -15,7 +15,7 @@ return require('packer').startup(function(use)
   -- fuzzy finder
   use 'nvim-lua/plenary.nvim'
   use 'nvim-telescope/telescope.nvim'
-  use 'nvim-telescope/telescope-fzf-native.nvim'
+  use {'nvim-telescope/telescope-fzf-native.nvim', run = 'make' }
   -- lsp
   use 'williamboman/mason.nvim'
   use "williamboman/mason-lspconfig.nvim"
@@ -27,7 +27,6 @@ return require('packer').startup(function(use)
   use 'hrsh7th/cmp-path'
   use 'hrsh7th/cmp-cmdline'
   use 'hrsh7th/nvim-cmp'
- 
   use 'hrsh7th/cmp-vsnip'
   use 'hrsh7th/vim-vsnip'
 
