@@ -67,6 +67,7 @@ require('plugins')
 require('lsp')
 require('keymaps')
 require('treesiterconfig')
+require('nullconfig')
 EOF
 
 set completeopt=menu,menuone,noselect
