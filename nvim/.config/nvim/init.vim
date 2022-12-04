@@ -66,6 +66,7 @@ lua << EOF
 require('plugins')
 require('lsp')
 require('keymaps')
+require('treesiterconfig')
 EOF
 
 set completeopt=menu,menuone,noselect

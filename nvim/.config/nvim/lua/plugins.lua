@@ -26,6 +26,13 @@ return require('packer').startup(function(use)
   use 'nvim-telescope/telescope.nvim'
   use {'nvim-telescope/telescope-fzf-native.nvim', run = 'make' }
   -- lsp
+  use {
+       'nvim-treesitter/nvim-treesitter',
+       run = function()
+        local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
+        ts_update()
+       end,
+  }
   use 'williamboman/mason.nvim'
   use "williamboman/mason-lspconfig.nvim"
   use 'neovim/nvim-lspconfig' 
