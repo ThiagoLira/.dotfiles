@@ -75,6 +75,7 @@ require("mason-lspconfig").setup()
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 require'lspconfig'.pylsp.setup{on_attach=on_attach, capabilities=capabilities}
 require'lspconfig'.rust_analyzer.setup{on_attach=on_attach, capabilities=capabilities}
+require'lspconfig'.tsserver.setup{on_attach=on_attach, capabilities=capabilities}
 require'lspconfig'.sumneko_lua.setup{on_attach=on_attach, capabilities=capabilities,
                                         -- add vim variable to globals
                                         settings={Lua={diagnostics={globals={'vim'}}}}}

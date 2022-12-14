@@ -8,3 +8,6 @@ vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
 
 -- FORMAT CODE
 vim.keymap.set('n', '<leader>cf', vim.lsp.buf.formatting, {})
+
+
+
