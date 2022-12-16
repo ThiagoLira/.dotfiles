@@ -72,6 +72,7 @@ require('keymaps')
 require('plugin_configs.treesiter')
 require('plugin_configs.null')
 require('plugin_configs.mason')
+require('plugin_configs.telescope')
 EOF
 
 set completeopt=menu,menuone,noselect
