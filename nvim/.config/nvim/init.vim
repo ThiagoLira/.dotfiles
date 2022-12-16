@@ -66,11 +66,12 @@ nnoremap <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
 
 
 lua << EOF
-require('plugins')
+require('plugins_install')
 require('lsp')
 require('keymaps')
-require('treesiterconfig')
-require('nullconfig')
+require('plugin_configs.treesiter')
+require('plugin_configs.null')
+require('plugin_configs.mason')
 EOF
 
 set completeopt=menu,menuone,noselect
