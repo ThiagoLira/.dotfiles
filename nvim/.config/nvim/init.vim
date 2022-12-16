@@ -27,8 +27,8 @@ set visualbell           " don't beep
 set noerrorbells         " don't beep
 
 
-let maplocalleader=","
-let mapleader=","
+let maplocalleader=" "
+let mapleader=" "
 
 " Open new split panes to right and bottom, which feels more natural
 set splitbelow
@@ -68,7 +68,6 @@ nnoremap <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
 lua << EOF
 require('plugins_install')
 require('lsp')
-require('keymaps')
 require('plugin_configs.treesiter')
 require('plugin_configs.null')
 require('plugin_configs.mason')
