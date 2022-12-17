@@ -6,12 +6,11 @@ set termguicolors
 set tabstop=4           " 4 space tab
 set expandtab           " use spaces for tabs
 set softtabstop=4       " 4 space tab
-
+set autoindent
 
 set hidden
 set statusline=%(%F%m%r%h%w\ [%Y]\ %{&encoding}\ %)%=%(%l,%v\ %LL\ %p%%%)
 set laststatus=2
-set autoindent
 
 set listchars=tab:▸\ ,trail:▫
 
@@ -44,7 +43,6 @@ nmap <LEADER>w- :split<CR>
 nmap <LEADER>w<bar> :vsplit<CR>
 
 
-
 "add relative numbering"
 set number relativenumber
 set mouse=a
@@ -64,15 +62,17 @@ nnoremap <silent> <leader>sd :source $MYVIMRC<CR>
 "Remove all trailing whitespace by pressing F5
 nnoremap <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
 
+" use tab and s-tab to scroll completion suggestions
+inoremap <silent> <TAB> <C-n>
+inoremap <silent> <S-TAB> <C-p>
 
 lua << EOF
 require('plugins_install')
-require('lsp')
 require('plugin_configs.treesiter')
 require('plugin_configs.null')
 require('plugin_configs.mason')
 require('plugin_configs.telescope')
+require('lsp')
 EOF
 
-set completeopt=menu,menuone,noselect
 colorscheme molokai
