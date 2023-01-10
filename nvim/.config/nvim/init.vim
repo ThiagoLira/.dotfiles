@@ -67,12 +67,7 @@ inoremap <silent> <TAB> <C-n>
 inoremap <silent> <S-TAB> <C-p>
 
 lua << EOF
-require('plugins_install')
-require('plugin_configs.treesiter')
-require('plugin_configs.null')
-require('plugin_configs.mason')
-require('plugin_configs.telescope')
-require('lsp')
+require('plugins')
 EOF
 
 colorscheme molokai
