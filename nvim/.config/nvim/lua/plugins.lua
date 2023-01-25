@@ -281,3 +281,8 @@ require("lazy").setup({
         "L3MON4D3/LuaSnip",
         "saadparwaiz1/cmp_luasnip"
 })
+
+
+
+-- open dotfile location
+vim.keymap.set('n', '<leader>df', function() vim.cmd('Ntree ' .. os.getenv('HOME') ..'/.config/nvim') end, {})
