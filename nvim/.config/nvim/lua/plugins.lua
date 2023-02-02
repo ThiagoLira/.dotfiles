@@ -19,6 +19,19 @@ require("lazy").setup({
         'Olical/conjure',
         -- theme
         'tomasr/molokai',
+        -- status line
+        { 'nvim-lualine/lualine.nvim',
+                config = function()
+                        require('lualine').setup {
+                                options = {
+                                        icons_enabled = false,
+                                        theme = 'onedark',
+                                        component_separators = '|',
+                                        section_separators = '',
+                                },
+                        }
+                end,
+        },
         -- fuzzy finder
         'nvim-lua/plenary.nvim',
         { 'nvim-telescope/telescope.nvim',
@@ -33,12 +46,13 @@ require("lazy").setup({
                         vim.keymap.set('n', '<leader>fp', builtin.git_files, {})
                         vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
                         vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
+                        vim.keymap.set('n', '<leader>?', builtin.oldfiles, {})
+                        vim.keymap.set('n', '<leader><space>', builtin.buffers, {})
                 end,
         },
         { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
         -- lsp
-        {
-                'nvim-treesitter/nvim-treesitter',
+        { 'nvim-treesitter/nvim-treesitter',
                 run = function()
                         local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
                         ts_update()
@@ -51,10 +65,60 @@ require("lazy").setup({
                                 -- Install parsers synchronously (only applied to `ensure_installed`)
                                 sync_install = false,
 
-                                highlight = {
-                                        -- `false` will disable the whole extension
+                                highlight = { enable = true },
+                                indent = { enable = true, disable = { 'python' } },
+                                incremental_selection = {
                                         enable = true,
-
+                                        keymaps = {
+                                                init_selection = '<c-space>',
+                                                node_incremental = '<c-space>',
+                                                scope_incremental = '<c-s>',
+                                                node_decremental = '<c-backspace>',
+                                        },
+                                },
+                                textobjects = {
+                                        select = {
+                                                enable = true,
+                                                lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
+                                                keymaps = {
+                                                        -- You can use the capture groups defined in textobjects.scm
+                                                        ['aa'] = '@parameter.outer',
+                                                        ['ia'] = '@parameter.inner',
+                                                        ['af'] = '@function.outer',
+                                                        ['if'] = '@function.inner',
+                                                        ['ac'] = '@class.outer',
+                                                        ['ic'] = '@class.inner',
+                                                },
+                                        },
+                                        move = {
+                                                enable = true,
+                                                set_jumps = true, -- whether to set jumps in the jumplist
+                                                goto_next_start = {
+                                                        [']m'] = '@function.outer',
+                                                        [']]'] = '@class.outer',
+                                                },
+                                                goto_next_end = {
+                                                        [']M'] = '@function.outer',
+                                                        [']['] = '@class.outer',
+                                                },
+                                                goto_previous_start = {
+                                                        ['[m'] = '@function.outer',
+                                                        ['[['] = '@class.outer',
+                                                },
+                                                goto_previous_end = {
+                                                        ['[M'] = '@function.outer',
+                                                        ['[]'] = '@class.outer',
+                                                },
+                                        },
+                                        swap = {
+                                                enable = true,
+                                                swap_next = {
+                                                        ['<leader>a'] = '@parameter.inner',
+                                                },
+                                                swap_previous = {
+                                                        ['<leader>A'] = '@parameter.inner',
+                                                },
+                                        },
                                 },
                         }
                 end
@@ -285,4 +349,4 @@ require("lazy").setup({
 
 
 -- open dotfile location
-vim.keymap.set('n', '<leader>df', function() vim.cmd('Ntree ' .. os.getenv('HOME') ..'/.config/nvim') end, {})
+vim.keymap.set('n', '<leader>df', function() vim.cmd('Ntree ' .. os.getenv('HOME') .. '/.config/nvim') end, {})
