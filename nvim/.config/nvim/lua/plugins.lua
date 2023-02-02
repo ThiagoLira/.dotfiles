@@ -52,6 +52,8 @@ require("lazy").setup({
         },
         { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
         -- lsp
+        { 'nvim-treesitter/nvim-treesitter-textobjects',
+                dependencies = { 'nvim-treesitter/nvim-treesitter' } },
         { 'nvim-treesitter/nvim-treesitter',
                 run = function()
                         local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
