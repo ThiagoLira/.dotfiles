@@ -126,30 +126,12 @@ require("lazy").setup({
                 end
         },
         { 'williamboman/mason.nvim',
-                config = function()
-                        -- enable mason
-                        require('mason').setup()
-
-                end
         },
         { "williamboman/mason-lspconfig.nvim",
                 dependencies = { 'mason.nvim' },
-                config = function()
-                        require('mason-lspconfig').setup({
-                                -- list of servers for mason to install
-                                ensure_installed = {
-                                        "tsserver",
-                                        "pylsp",
-                                        "rust_analyzer",
-                                        "sumneko_lua",
-                                },
-                                -- auto-install configured servers (with lspconfig)
-                                automatic_installation = true, -- not the same as ensure_installed
-                        })
-                end
         },
         { 'neovim/nvim-lspconfig',
-                dependencies = { 'nvim-cmp', 'mason.nvim', "mason-lspconfig.nvim", "cmp-nvim-lsp" },
+                dependencies = { 'nvim-cmp', 'mason.nvim', "mason-lspconfig.nvim", "cmp-nvim-lsp" , "neodev.nvim"},
                 init = function()
 
                         local opts = { noremap = true, silent = true }
@@ -225,17 +207,42 @@ require("lazy").setup({
                                 }
                         })
 
+                        -- Add new servers here
+                        -- they will be automatically installed and setup
+                        -- add settings in this table
+                        local servers = {
+                                pylsp = {},
+                                rust_analyzer = {},
+                                tsserver = {},
+                                sumneko_lua = {
+                                         Lua = { diagnostics = { globals = { 'vim' } } } 
+                                },
+                        }
+
 
                         require("mason").setup()
-                        require("mason-lspconfig").setup()
+                        -- Ensure the servers above are installed
+                        local mason_lspconfig = require 'mason-lspconfig'
+                        mason_lspconfig.setup {
+                                ensure_installed = vim.tbl_keys(servers),
 
-                        local capabilities = require('cmp_nvim_lsp').default_capabilities()
-                        require 'lspconfig'.pylsp.setup { on_attach = on_attach, capabilities = capabilities }
-                        require 'lspconfig'.rust_analyzer.setup { on_attach = on_attach, capabilities = capabilities }
-                        require 'lspconfig'.tsserver.setup { on_attach = on_attach, capabilities = capabilities }
-                        require 'lspconfig'.sumneko_lua.setup { on_attach = on_attach, capabilities = capabilities,
-                                -- add vim variable to globals
-                                settings = { Lua = { diagnostics = { globals = { 'vim' } } } } }
+                        }
+
+                        -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
+                        local capabilities = vim.lsp.protocol.make_client_capabilities()
+                        capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+
+
+                        mason_lspconfig.setup_handlers {
+                                function(server_name)
+                                        require('lspconfig')[server_name].setup {
+                                                capabilities = capabilities,
+
+                                                on_attach = on_attach,
+                                                settings = servers[server_name],
+                                        }
+                                end,
+                        }
                 end
 
         },
@@ -345,10 +352,21 @@ require("lazy").setup({
         "onsails/lspkind.nvim",
         -- snippets
         "L3MON4D3/LuaSnip",
-        "saadparwaiz1/cmp_luasnip"
+        "saadparwaiz1/cmp_luasnip",
+        { "folke/neodev.nvim",
+                config = function()
+                        require('neodev').setup()
+                end
+        }
 })
 
 
+--REMAPS
+-- Remap for dealing with word wrap
+vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+-- better use of <Space> leader
+vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 
 -- open dotfile location
 vim.keymap.set('n', '<leader>df', function() vim.cmd('Ntree ' .. os.getenv('HOME') .. '/.config/nvim') end, {})
