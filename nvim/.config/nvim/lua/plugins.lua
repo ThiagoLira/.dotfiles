@@ -32,6 +32,15 @@ require("lazy").setup({
                         }
                 end,
         },
+        -- terminal
+        { 'akinsho/toggleterm.nvim',
+                config = function()
+                        require("toggleterm").setup {
+                                size = 13,
+                                open_mapping = [[<leader>tt]]
+                        }
+                end
+        },
         -- fuzzy finder
         'nvim-lua/plenary.nvim',
         { 'nvim-telescope/telescope.nvim',
@@ -131,7 +140,7 @@ require("lazy").setup({
                 dependencies = { 'mason.nvim' },
         },
         { 'neovim/nvim-lspconfig',
-                dependencies = { 'nvim-cmp', 'mason.nvim', "mason-lspconfig.nvim", "cmp-nvim-lsp" , "neodev.nvim"},
+                dependencies = { 'nvim-cmp', 'mason.nvim', "mason-lspconfig.nvim", "cmp-nvim-lsp", "neodev.nvim" },
                 init = function()
 
                         local opts = { noremap = true, silent = true }
@@ -214,8 +223,8 @@ require("lazy").setup({
                                 pylsp = {},
                                 rust_analyzer = {},
                                 tsserver = {},
-                                sumneko_lua = {
-                                         Lua = { diagnostics = { globals = { 'vim' } } } 
+                                lua_ls = {
+                                        Lua = { diagnostics = { globals = { 'vim' } } }
                                 },
                         }
 
@@ -325,7 +334,7 @@ require("lazy").setup({
 
                                         ["<C-b>"] = cmp.mapping.scroll_docs(-4),
                                         ["<C-f>"] = cmp.mapping.scroll_docs(4),
-                                        ["<C-Space>"] = cmp.mapping.complete(), -- show completion suggestions
+                                        ["<C-Space>"] = cmp.mapping.complete({}), -- show completion suggestions
                                         ["<C-e>"] = cmp.mapping.abort(), -- close completion window
                                         ["<CR>"] = cmp.mapping.confirm({ select = false }),
                                 }),
