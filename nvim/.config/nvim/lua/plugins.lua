@@ -19,7 +19,8 @@ require("lazy").setup({
         -- theme
         'tomasr/molokai',
         -- status line
-        { 'nvim-lualine/lualine.nvim',
+        {
+                'nvim-lualine/lualine.nvim',
                 config = function()
                         require('lualine').setup {
                                 options = {
@@ -32,7 +33,8 @@ require("lazy").setup({
                 end,
         },
         -- terminal
-        { 'akinsho/toggleterm.nvim',
+        {
+                'akinsho/toggleterm.nvim',
                 config = function()
                         require("toggleterm").setup {
                                 size = 13,
@@ -42,7 +44,8 @@ require("lazy").setup({
         },
         -- fuzzy finder
         'nvim-lua/plenary.nvim',
-        { 'nvim-telescope/telescope.nvim',
+        {
+                'nvim-telescope/telescope.nvim',
                 config = function()
                         require('telescope').load_extension('fzf')
                 end,
@@ -59,9 +62,12 @@ require("lazy").setup({
         },
         { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
         -- lsp
-        { 'nvim-treesitter/nvim-treesitter-textobjects',
-                dependencies = { 'nvim-treesitter/nvim-treesitter' } },
-        { 'nvim-treesitter/nvim-treesitter',
+        {
+                'nvim-treesitter/nvim-treesitter-textobjects',
+                dependencies = { 'nvim-treesitter/nvim-treesitter' }
+        },
+        {
+                'nvim-treesitter/nvim-treesitter',
                 run = function()
                         local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
                         ts_update()
@@ -132,91 +138,50 @@ require("lazy").setup({
                         }
                 end
         },
-        { 'williamboman/mason.nvim',
-        },
-        { "williamboman/mason-lspconfig.nvim",
-                dependencies = { 'mason.nvim' },
-        },
-        { 'neovim/nvim-lspconfig',
-                dependencies = { 'mason.nvim', "mason-lspconfig.nvim", "neodev.nvim" },
-                init = function()
-                        local opts = { noremap = true, silent = true }
-                        vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, opts)
-                        vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
-                        vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
-                        vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist, opts)
-                end,
-                config = function()
-                        -- Mappings.
-                        -- See `:help vim.diagnostic.*` for documentation on any of the below functions
+        {
+                'VonHeikemen/lsp-zero.nvim',
+                branch       = 'v1.x',
+                dependencies = {
+                        -- LSP Support
+                        { 'neovim/nvim-lspconfig' },             -- Required
+                        { 'williamboman/mason.nvim' },           -- Optional
+                        { 'williamboman/mason-lspconfig.nvim' }, -- Optional
 
-                        -- Use an on_attach function to only map the following keys
-                        -- after the language server attaches to the current buffer
-                        local on_attach = function(client, bufnr)
-                                -- Enable completion triggered by <c-x><c-o>
-                                vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+                        -- Autocompletion
+                        { 'hrsh7th/nvim-cmp' },         -- Required
+                        { 'hrsh7th/cmp-nvim-lsp' },     -- Required
+                        { 'hrsh7th/cmp-buffer' },       -- Optional
+                        { 'hrsh7th/cmp-path' },         -- Optional
+                        { 'saadparwaiz1/cmp_luasnip' }, -- Optional
+                        { 'hrsh7th/cmp-nvim-lua' },     -- Optional
 
-                                -- Mappings.
-                                -- See `:help vim.lsp.*` for documentation on any of the below functions
-                                local bufopts = { noremap = true, silent = true, buffer = bufnr }
-                                vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
-                                vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
-                                vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
-                                vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
-                                vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
-                                vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, bufopts)
-                                vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, bufopts)
-                                vim.keymap.set('n', '<leader>wl', function()
-                                        print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-                                end, bufopts)
-                                vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, bufopts)
-                                vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
-                                vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, bufopts)
-                                vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
-                                vim.keymap.set('n', '<leader>cf', vim.lsp.buf.formatting, bufopts)
-                        end
+                        -- Snippets
+                        { 'L3MON4D3/LuaSnip' },             -- Required
+                        { 'rafamadriz/friendly-snippets' }, -- Optional
+                },
+                config       = function()
+                        local lsp = require('lsp-zero').preset({
+                                name = 'recommended',
+                                set_lsp_keymaps = true,
+                                manage_nvim_cmp = true,
+                                suggest_lsp_servers = false,
+                        })
 
+                        lsp.ensure_installed({
+                                'tsserver',
+                                'rust_analyzer',
+                                'pylsp',
+                                'lua_ls'
+                        })
 
-                        -- Add new servers here
-                        -- they will be automatically installed and setup
-                        -- add settings in this table
-                        local servers = {
-                                pylsp = {},
-                                rust_analyzer = {},
-                                tsserver = {},
-                                lua_ls = {
-                                        Lua = { diagnostics = { globals = { 'vim' } } }
-                                },
-                        }
+                        -- (Optional) Configure lua language server for neovim
+                        lsp.nvim_workspace()
 
-
-                        require("mason").setup()
-                        -- Ensure the servers above are installed
-                        local mason_lspconfig = require 'mason-lspconfig'
-                        mason_lspconfig.setup {
-                                ensure_installed = vim.tbl_keys(servers),
-
-                        }
-
-                        -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
-                        local capabilities = vim.lsp.protocol.make_client_capabilities()
-                        capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
-
-
-                        mason_lspconfig.setup_handlers {
-                                function(server_name)
-                                        require('lspconfig')[server_name].setup {
-                                                capabilities = capabilities,
-                                                on_attach = on_attach,
-                                                settings = servers[server_name],
-                                        }
-                                end,
-                        }
+                        lsp.setup()
                 end
-
         },
-        { 'jose-elias-alvarez/null-ls.nvim',
-
+        {
+                'jose-elias-alvarez/null-ls.nvim',
                 config = function()
                         local null_ls = require("null-ls")
 
@@ -227,100 +192,13 @@ require("lazy").setup({
                         })
                 end
         },
-        -- completion
-        'hrsh7th/cmp-buffer',
-        'hrsh7th/cmp-path',
-        { 'hrsh7th/nvim-cmp',
-                dependencies = { 'LuaSnip', 'lspkind.nvim', 'cmp-nvim-lsp', 'cmp_luasnip' },
-                config = function()
-                        local lspkind = require('lspkind')
-                        local cmp = require('cmp')
-
-                        local luasnip = require("luasnip").config.set_config {
-                                history = true,
-                        }
-                        require("luasnip.loaders.from_vscode").load {}
-                        -- super-tab like
-                        local has_words_before = function()
-                                unpack = unpack or table.unpack
-                                local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-                                return col ~= 0 and
-                                    vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") ==
-                                    nil
-                        end
-
-
-                        vim.opt.completeopt = "menu,menuone,noselect"
-
-                        cmp.setup({
-                                snippet = {
-                                        expand = function(args)
-                                                luasnip.lsp_expand(args.body)
-                                        end,
-                                },
-                                mapping = cmp.mapping.preset.insert({
-                                        ['<C-p>'] = cmp.mapping.select_prev_item(),
-                                        ['<C-n>'] = cmp.mapping.select_next_item(),
-                                        ['<TAB>'] = cmp.mapping(function(fallback)
-                                                if cmp.visible() then
-                                                        cmp.select_next_item()
-                                                elseif luasnip.expand_or_jumpable() then
-                                                        luasnip.expand_or_jump()
-                                                elseif has_words_before() then
-                                                        cmp.complete()
-                                                else
-                                                        fallback()
-                                                end
-                                        end, { "i", "s" }),
-
-                                        ['<S-Tab>'] = cmp.mapping(function(fallback)
-                                                if cmp.visible() then
-                                                        cmp.select_prev_item()
-                                                elseif luasnip.jumpable( -1) then
-                                                        luasnip.jump( -1)
-                                                else
-                                                        fallback()
-                                                end
-                                        end, { "i", "s" }),
-
-                                        ["<C-b>"] = cmp.mapping.scroll_docs( -4),
-                                        ["<C-f>"] = cmp.mapping.scroll_docs(4),
-                                        ["<C-Space>"] = cmp.mapping.complete({}), -- show completion suggestions
-                                        ["<C-e>"] = cmp.mapping.abort(), -- close completion window
-                                        ["<CR>"] = cmp.mapping.confirm({ select = false }),
-                                }),
-                                -- sources for autocompletion
-                                sources = cmp.config.sources({
-                                        { name = "nvim_lsp" }, -- lsp
-                                        { name = "luasnip" },
-                                        { name = "buffer" }, -- text within current buffer
-                                        { name = "path" }, -- file system paths
-                                }),
-                                -- configure lspkind for vs-code like icons
-                                formatting = {
-                                        format = lspkind.cmp_format({
-                                                maxwidth = 50,
-                                                ellipsis_char = "...",
-                                        }),
-                                },
-                        })
-                end
-        },
-        'hrsh7th/cmp-cmdline',
-        -- completion for LSP
-        "hrsh7th/cmp-nvim-lsp",
-        -- vscode like icons
-        "onsails/lspkind.nvim",
-        -- snippets
-        "L3MON4D3/LuaSnip",
-        "saadparwaiz1/cmp_luasnip",
-        { "folke/neodev.nvim",
+        {
+                "folke/neodev.nvim",
                 config = function()
                         require('neodev').setup()
                 end
         }
 })
-
 
 --REMAPS
 -- Remap for dealing with word wrap
