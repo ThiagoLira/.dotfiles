@@ -140,7 +140,7 @@ require("lazy").setup({
                 dependencies = { 'mason.nvim' },
         },
         { 'neovim/nvim-lspconfig',
-                dependencies = { 'nvim-cmp', 'mason.nvim', "mason-lspconfig.nvim", "cmp-nvim-lsp", "neodev.nvim" },
+                dependencies = { 'mason.nvim', "mason-lspconfig.nvim", "neodev.nvim" },
                 init = function()
 
                         local opts = { noremap = true, silent = true }
@@ -180,41 +180,6 @@ require("lazy").setup({
                                 vim.keymap.set('n', '<leader>cf', vim.lsp.buf.formatting, bufopts)
                         end
 
-                        local cmp = require 'cmp'
-
-                        cmp.setup({
-                                snippet = {
-                                        expand = function(args)
-                                                vim.fn["vsnip#anonymous"](args.body)
-                                        end,
-                                },
-                                window = {
-                                        completion = cmp.config.window.bordered(),
-                                        documentation = cmp.config.window.bordered(),
-                                },
-                                mapping = cmp.mapping.preset.insert({
-                                        ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-                                        ['<C-f>'] = cmp.mapping.scroll_docs(4),
-                                        ['<C-Space>'] = cmp.mapping.complete(),
-                                        ['<C-e>'] = cmp.mapping.abort(),
-                                        ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-                                }),
-                                sources = cmp.config.sources({
-                                        { name = 'nvim_lsp' },
-                                        { name = 'vsnip' }, -- For vsnip users.
-                                }, {
-                                        { name = 'buffer' },
-                                })
-                        })
-
-
-                        -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
-                        cmp.setup.cmdline({ '/', '?' }, {
-                                mapping = cmp.mapping.preset.cmdline(),
-                                sources = {
-                                        { name = 'buffer' }
-                                }
-                        })
 
                         -- Add new servers here
                         -- they will be automatically installed and setup
@@ -246,7 +211,6 @@ require("lazy").setup({
                                 function(server_name)
                                         require('lspconfig')[server_name].setup {
                                                 capabilities = capabilities,
-
                                                 on_attach = on_attach,
                                                 settings = servers[server_name],
                                         }
@@ -274,20 +238,11 @@ require("lazy").setup({
         'hrsh7th/cmp-buffer',
         'hrsh7th/cmp-path',
         { 'hrsh7th/nvim-cmp',
-                dependencies = { 'LuaSnip', 'lspkind.nvim' },
+                dependencies = { 'LuaSnip', 'lspkind.nvim', 'cmp-nvim-lsp', 'cmp_luasnip' },
                 config = function()
                         local lspkind = require('lspkind')
-                        -- import nvim-cmp plugin safely
-                        local cmp_status, cmp = pcall(require, "cmp")
-                        if not cmp_status then
-                                return
-                        end
-
-                        -- import luasnip plugin safely
-                        local luasnip_status, luasnip = pcall(require, "luasnip")
-                        if not luasnip_status then
-                                return
-                        end
+                        local cmp = require('cmp')
+                        local luasnip = require('luasnip')
 
                         -- super-tab like
                         local has_words_before = function()
@@ -341,6 +296,7 @@ require("lazy").setup({
                                 -- sources for autocompletion
                                 sources = cmp.config.sources({
                                         { name = "nvim_lsp" }, -- lsp
+                                        { name = "luasnip" },
                                         { name = "buffer" }, -- text within current buffer
                                         { name = "path" }, -- file system paths
                                 }),
