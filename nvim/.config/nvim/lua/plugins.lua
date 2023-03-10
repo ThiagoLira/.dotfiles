@@ -12,7 +12,6 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-
 require("lazy").setup({
         'Olical/aniseed',
         'bakpakin/fennel',
@@ -45,7 +44,6 @@ require("lazy").setup({
         'nvim-lua/plenary.nvim',
         { 'nvim-telescope/telescope.nvim',
                 config = function()
-
                         require('telescope').load_extension('fzf')
                 end,
                 init = function()
@@ -142,7 +140,6 @@ require("lazy").setup({
         { 'neovim/nvim-lspconfig',
                 dependencies = { 'mason.nvim', "mason-lspconfig.nvim", "neodev.nvim" },
                 init = function()
-
                         local opts = { noremap = true, silent = true }
                         vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, opts)
                         vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
@@ -150,7 +147,6 @@ require("lazy").setup({
                         vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist, opts)
                 end,
                 config = function()
-
                         -- Mappings.
                         -- See `:help vim.diagnostic.*` for documentation on any of the below functions
 
@@ -222,7 +218,6 @@ require("lazy").setup({
         { 'jose-elias-alvarez/null-ls.nvim',
 
                 config = function()
-
                         local null_ls = require("null-ls")
 
                         null_ls.setup({
@@ -230,8 +225,6 @@ require("lazy").setup({
                                         null_ls.builtins.formatting.black
                                 },
                         })
-
-
                 end
         },
         -- completion
@@ -242,8 +235,11 @@ require("lazy").setup({
                 config = function()
                         local lspkind = require('lspkind')
                         local cmp = require('cmp')
-                        local luasnip = require('luasnip')
 
+                        local luasnip = require("luasnip").config.set_config {
+                                history = true,
+                        }
+                        require("luasnip.loaders.from_vscode").load {}
                         -- super-tab like
                         local has_words_before = function()
                                 unpack = unpack or table.unpack
@@ -280,14 +276,14 @@ require("lazy").setup({
                                         ['<S-Tab>'] = cmp.mapping(function(fallback)
                                                 if cmp.visible() then
                                                         cmp.select_prev_item()
-                                                elseif luasnip.jumpable(-1) then
-                                                        luasnip.jump(-1)
+                                                elseif luasnip.jumpable( -1) then
+                                                        luasnip.jump( -1)
                                                 else
                                                         fallback()
                                                 end
                                         end, { "i", "s" }),
 
-                                        ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+                                        ["<C-b>"] = cmp.mapping.scroll_docs( -4),
                                         ["<C-f>"] = cmp.mapping.scroll_docs(4),
                                         ["<C-Space>"] = cmp.mapping.complete({}), -- show completion suggestions
                                         ["<C-e>"] = cmp.mapping.abort(), -- close completion window
