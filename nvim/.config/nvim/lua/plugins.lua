@@ -140,23 +140,21 @@ require("lazy").setup({
         },
         {
                 'VonHeikemen/lsp-zero.nvim',
-                branch       = 'v1.x',
+                branch       = 'v2.x',
                 dependencies = {
                         -- LSP Support
-                        { 'neovim/nvim-lspconfig' },             -- Required
-                        { 'williamboman/mason.nvim' },           -- Optional
+                        { 'neovim/nvim-lspconfig' }, -- Required
+                        { 'williamboman/mason.nvim' }, -- Optional
                         { 'williamboman/mason-lspconfig.nvim' }, -- Optional
 
                         -- Autocompletion
-                        { 'hrsh7th/nvim-cmp' },         -- Required
-                        { 'hrsh7th/cmp-nvim-lsp' },     -- Required
-                        { 'hrsh7th/cmp-buffer' },       -- Optional
-                        { 'hrsh7th/cmp-path' },         -- Optional
-                        { 'saadparwaiz1/cmp_luasnip' }, -- Optional
-                        { 'hrsh7th/cmp-nvim-lua' },     -- Optional
+                        { 'hrsh7th/nvim-cmp' }, -- Required
+                        { 'hrsh7th/cmp-nvim-lsp' }, -- Required
+                        { 'hrsh7th/cmp-buffer' }, -- Optional
+                        { 'hrsh7th/cmp-path' }, -- Optional
+                        { 'hrsh7th/cmp-nvim-lua' }, -- Optional
 
                         -- Snippets
-                        { 'L3MON4D3/LuaSnip' },             -- Required
                         { 'rafamadriz/friendly-snippets' }, -- Optional
                 },
                 config       = function()
@@ -167,6 +165,10 @@ require("lazy").setup({
                                 suggest_lsp_servers = false,
                         })
 
+                        lsp.on_attach(function(client, bufnr)
+                          lsp.default_keymaps({buffer = bufnr})
+                        end)
+
                         lsp.ensure_installed({
                                 'tsserver',
                                 'rust_analyzer',
@@ -174,8 +176,24 @@ require("lazy").setup({
                                 'lua_ls'
                         })
 
+                        -- python specific config
+                        lsp.configure('pylsp', {
+                                settings = {
+                                        pylsp = {
+                                                plugins = {
+                                                        pylint = { enabled = true, executable = "pylint" },
+                                                        pyflakes = { enabled = false },
+                                                        pycodestyle = { enabled = false },
+                                                        jedi_completion = { fuzzy = true },
+                                                        pyls_isort = { enabled = true },
+                                                        pylsp_mypy = { enabled = true },
+                                                },
+                                        },
+                                },
+                        })
+
                         -- (Optional) Configure lua language server for neovim
-                        lsp.nvim_workspace()
+                        require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
 
                         lsp.setup()
                 end
@@ -199,7 +217,6 @@ require("lazy").setup({
                 end
         }
 })
-
 --REMAPS
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
