@@ -175,24 +175,8 @@ require("lazy").setup({
                         lsp.ensure_installed({
                                 'tsserver',
                                 'rust_analyzer',
-                                'pylsp',
+                                'pyright',
                                 'lua_ls'
-                        })
-
-                        -- python specific config
-                        lsp.configure('pylsp', {
-                                settings = {
-                                        pylsp = {
-                                                plugins = {
-                                                        pylint = { enabled = true, executable = "pylint" },
-                                                        pyflakes = { enabled = false },
-                                                        pycodestyle = { enabled = false },
-                                                        jedi_completion = { fuzzy = true },
-                                                        pyls_isort = { enabled = true },
-                                                        pylsp_mypy = { enabled = true },
-                                                },
-                                        },
-                                },
                         })
 
                         -- (Optional) Configure lua language server for neovim
