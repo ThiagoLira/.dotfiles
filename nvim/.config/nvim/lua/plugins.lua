@@ -13,11 +13,21 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-        'Olical/aniseed',
-        'bakpakin/fennel',
+        {
+                'rktjmp/hotpot.nvim',
+                config = function()
+                          require('hotpot')
+                          end
+        },
         'Olical/conjure',
         -- theme
-        'tomasr/molokai',
+	{ 
+		"catppuccin/nvim",
+		name = "catppuccin",
+		config = function()
+			vim.cmd.colorscheme "catppuccin"
+			end,
+	},
         -- status line
         {
                 'nvim-lualine/lualine.nvim',
@@ -38,8 +48,8 @@ require("lazy").setup({
                 config = function()
                         require("toggleterm").setup {
                                 size = 13,
-                                open_mapping = [[<leader>tt]]
                         }
+			vim.keymap.set('n','<leader>tt' ,function() vim.cmd('Toggleterm')  end)
                 end
         },
         -- fuzzy finder
@@ -204,12 +214,3 @@ require("lazy").setup({
                 end
         }
 })
---REMAPS
--- Remap for dealing with word wrap
-vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
--- better use of <Space> leader
-vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
-
--- open dotfile location
-vim.keymap.set('n', '<leader>df', function() vim.cmd('Ntree ' .. os.getenv('HOME') .. '/.config/nvim') end, {})
