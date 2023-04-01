@@ -54,6 +54,7 @@ require("lazy").setup({
         },
         -- fuzzy finder
         'nvim-lua/plenary.nvim',
+        'MunifTanjim/nui.nvim',
         {
                 'nvim-telescope/telescope.nvim',
                 config = function()
@@ -212,5 +213,7 @@ require("lazy").setup({
                 config = function()
                         require('neodev').setup()
                 end
-        }
+        },
+	--chatGPT
+	"dpayne/CodeGPT.nvim"
 })
