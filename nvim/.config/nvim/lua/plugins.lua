@@ -79,10 +79,8 @@ require("lazy").setup({
         },
         {
                 'nvim-treesitter/nvim-treesitter',
-                run = function()
-                        local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
-                        ts_update()
-                end,
+                dependencies = 'nvim-treesitter/nvim-treesitter-textobjects',
+                build = ":TSUpdate",
                 config = function()
                         require 'nvim-treesitter.configs'.setup {
                                 -- A list of parser names, or "all"
