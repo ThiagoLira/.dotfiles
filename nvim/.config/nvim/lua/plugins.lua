@@ -164,7 +164,7 @@ require("lazy").setup({
                         { 'hrsh7th/cmp-nvim-lua' }, -- Optional
                         {
                                 "L3MON4D3/LuaSnip",
-                                version = "<CurrentMajor>.*"
+                                version = "<CurrentMajor>.*",
                         },
                         -- Snippets
                         { 'rafamadriz/friendly-snippets' }, -- Optional
