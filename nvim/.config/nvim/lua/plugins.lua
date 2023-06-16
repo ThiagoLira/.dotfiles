@@ -49,7 +49,7 @@ require("lazy").setup({
                         require("toggleterm").setup {
                                 size = 13,
                         }
-			vim.keymap.set('n','<leader>tt' ,function() vim.cmd('Toggleterm')  end)
+			vim.keymap.set('n','<leader>tt' ,function() vim.cmd('ToggleTerm')  end)
                 end
         },
         -- fuzzy finder
