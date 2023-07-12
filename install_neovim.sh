@@ -7,7 +7,3 @@ chmod u+x nvim.appimage
 #exposing nvim globally.
 sudo mv squashfs-root /
 sudo ln -s /squashfs-root/AppRun /usr/bin/nvim
-
-
-# after symlinking neovim config to correct location!
-nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
