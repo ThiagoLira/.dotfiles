@@ -58,8 +58,8 @@ vim.keymap.set('n', '<leader>df', function() vim.cmd('Ntree ' .. os.getenv('HOME
 --  switch between last two files
 vim.keymap.set('n', '<leader><tab>',  '<C-^>' )
 --  split  panes
-vim.keymap.set('n', '<leader>w-',  function() vim.cmd('split') end)
-vim.keymap.set('n', '<leader>w<bar>',  function() vim.cmd('vsplit') end)
+vim.keymap.set('n', '<leader>ws',  function() vim.cmd('split') end)
+vim.keymap.set('n', '<leader>wv',  function() vim.cmd('vsplit') end)
 --  walk on  splits
 vim.keymap.set('n', '<c-j>',  '<c-w>j' )
 vim.keymap.set('n', '<c-k>',  '<c-w>k' )
