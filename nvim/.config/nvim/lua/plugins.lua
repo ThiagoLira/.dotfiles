@@ -28,6 +28,8 @@ require("lazy").setup({
 			vim.cmd.colorscheme "catppuccin"
 		end,
 	},
+	-- gc to comment lines
+	{ 'numToStr/Comment.nvim', opts = {} },
 	-- status line
 	{
 		'nvim-lualine/lualine.nvim',
@@ -71,7 +73,12 @@ require("lazy").setup({
 			vim.keymap.set('n', '<leader><space>', builtin.buffers, {})
 		end,
 	},
-	{ 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
+	{ 'nvim-telescope/telescope-fzf-native.nvim',
+		build = 'make',
+		-- check if we have make on our system
+		cond = function()
+			return vim.fn.executable 'make' == 1
+		end, },
 	-- lsp
 	{
 		'nvim-treesitter/nvim-treesitter-textobjects',
@@ -171,9 +178,22 @@ require("lazy").setup({
 		config       = function()
 			local lsp_zero = require('lsp-zero')
 
+			-- see :help lsp-zero-keybindings
+			-- to learn the available actions
 			lsp_zero.on_attach(function(client, bufnr)
-				-- see :help lsp-zero-keybindings
-				-- to learn the available actions
+				-- K:  Displays hover information about the symbol under the cursor in a floating window.
+				-- gd:  Jumps to the definition of the symbol under the cursor.
+				-- gD:  Jumps to the declaration of the symbol under the cursor.
+				-- gi:  Lists all the implementations for the symbol under the cursor in the quickfix window.
+				-- go:  Jumps to the definition of the type of the symbol under the cursor.
+				-- gr:  Lists all the references to the symbol under the cursor in the quickfix window.
+				-- gs:  Displays signature information about the symbol under the cursor in a floating window.
+				-- <F2>:  Renames all references to the symbol under the cursor.
+				-- <F3>:  Format a buffer using the LSP servers attached to it.
+				-- <F4>:  Selects a code action available at the current cursor position.
+				-- gl: Show diagnostic in a floating window.
+				-- [d:  Move to the previous diagnostic in the current buffer.
+				-- ]d:  Move to the next diagnostic.
 				lsp_zero.default_keymaps({ buffer = bufnr })
 			end)
 
@@ -195,16 +215,53 @@ require("lazy").setup({
 			})
 
 			local cmp = require('cmp')
-			local cmp_format = lsp_zero.cmp_format()
-
-			cmp.setup({
-				formatting = cmp_format,
-				mapping = cmp.mapping.preset.insert({
-					-- scroll up and down the documentation window
-					['<C-u>'] = cmp.mapping.scroll_docs( -4),
-					['<C-d>'] = cmp.mapping.scroll_docs(4),
-				}),
-			})
+			local luasnip = require 'luasnip'
+			require('luasnip.loaders.from_vscode').lazy_load()
+			luasnip.config.setup {}
+			cmp.setup {
+				snippet = {
+					expand = function(args)
+						luasnip.lsp_expand(args.body)
+					end,
+				},
+				completion = {
+					completeopt = 'menu,menuone,noinsert',
+				},
+				mapping = cmp.mapping.preset.insert {
+					['<C-n>'] = cmp.mapping.select_next_item(),
+					['<C-p>'] = cmp.mapping.select_prev_item(),
+					['<C-d>'] = cmp.mapping.scroll_docs( -4),
+					['<C-f>'] = cmp.mapping.scroll_docs(4),
+					['<C-Space>'] = cmp.mapping.complete {},
+					['<CR>'] = cmp.mapping.confirm {
+						behavior = cmp.ConfirmBehavior.Replace,
+						select = true,
+					},
+					['<Tab>'] = cmp.mapping(function(fallback)
+						if cmp.visible() then
+							cmp.select_next_item()
+						elseif luasnip.expand_or_locally_jumpable() then
+							luasnip.expand_or_jump()
+						else
+							fallback()
+						end
+					end, { 'i', 's' }),
+					['<S-Tab>'] = cmp.mapping(function(fallback)
+						if cmp.visible() then
+							cmp.select_prev_item()
+						elseif luasnip.locally_jumpable( -1) then
+							luasnip.jump( -1)
+						else
+							fallback()
+						end
+					end, { 'i', 's' }),
+				},
+				sources = {
+					{ name = 'nvim_lsp' },
+					{ name = 'luasnip' },
+					{ name = 'path' },
+				},
+			}
 		end
 	},
 	{
