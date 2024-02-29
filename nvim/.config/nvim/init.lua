@@ -128,7 +128,7 @@ require("lazy").setup({
 		"jdhao/better-escape.vim",
 		event = "InsertEnter",
 		config = function()
-			vim.g.better_escape_shortcut = "jj"
+			vim.g.better_escape_shortcut = "jk"
 		end,
 	},
 	-- See `:help gitsigns` to understand what the configuration keys do
