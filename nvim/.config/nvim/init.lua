@@ -354,9 +354,9 @@ require("lazy").setup({
 					-- Fuzzy find all the symbols in your current workspace
 					--  Similar to document symbols, except searches over your whole project.
 					map(
-						"<leader>ws",
+						"<leader>wy",
 						require("telescope.builtin").lsp_dynamic_workspace_symbols,
-						"[W]orkspace [S]ymbols"
+						"[W]orkspace s[Y]mbols"
 					)
 
 					-- Rename the variable under your cursor
@@ -715,3 +715,7 @@ end)
 vim.keymap.set("n", "<leader>wv", function()
 	vim.cmd("vsplit")
 end)
+
+vim.keymap.set("n", "<leader>tt", function()
+	vim.cmd("10split +term")
+end, { desc = { "Open terminal below" } })
