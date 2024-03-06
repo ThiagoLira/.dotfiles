@@ -164,7 +164,8 @@ require("lazy").setup({
 				["<leader>d"] = { name = "[D]ocument", _ = "which_key_ignore" },
 				["<leader>r"] = { name = "[R]ename", _ = "which_key_ignore" },
 				["<leader>s"] = { name = "[S]earch", _ = "which_key_ignore" },
-				["<leader>w"] = { name = "[W]orkspace", _ = "which_key_ignore" },
+				["<leader>w"] = { name = "[W]indow", _ = "which_key_ignore" },
+				["<leader>t"] = { name = "[T]erminal", _ = "which_key_ignore" },
 			})
 		end,
 	},
@@ -704,18 +705,24 @@ vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = tr
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 -- open dotfile location
 vim.keymap.set("n", "<leader>df", function()
-	vim.cmd("Ntree " .. os.getenv("HOME") .. "/.config/nvim")
-end, {})
+	vim.cmd("e" .. os.getenv("HOME") .. "/.config/nvim/init.lua")
+end, { desc = "Open init.lua" })
 --  switch between last two files
 vim.keymap.set("n", "<leader><tab>", "<C-^>")
+
 --  split  panes
 vim.keymap.set("n", "<leader>ws", function()
 	vim.cmd("split")
-end)
+end, { desc = "Open horizontal split" })
+
 vim.keymap.set("n", "<leader>wv", function()
 	vim.cmd("vsplit")
-end)
+end, { desc = "Open vertical split" })
 
 vim.keymap.set("n", "<leader>tt", function()
 	vim.cmd("10split +term")
-end, { desc = { "Open terminal below" } })
+end, { desc = "Open terminal below" })
+
+vim.keymap.set("n", "<leader>tv", function()
+	vim.cmd("40vsplit +term")
+end, { desc = "Open terminal on the right" })
