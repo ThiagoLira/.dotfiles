@@ -726,3 +726,12 @@ end, { desc = "Open terminal below" })
 vim.keymap.set("n", "<leader>tv", function()
 	vim.cmd("40vsplit +term")
 end, { desc = "Open terminal on the right" })
+
+vim.keymap.set("n", "<leader>tq", function()
+	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+		local buf = vim.api.nvim_win_get_buf(win)
+		if vim.api.nvim_buf_get_option(buf, "buftype") == "terminal" then
+			vim.api.nvim_win_close(win, true)
+		end
+	end
+end, { desc = "Close all open terminals" })
