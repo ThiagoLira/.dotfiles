@@ -127,7 +127,12 @@ require("lazy").setup({
 
 	-- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
 	"tpope/vim-sleuth", -- Detect tabstop and shiftwidth automatically
-
+	{
+		"aserowy/tmux.nvim",
+		config = function()
+			return require("tmux").setup()
+		end,
+	},
 	-- "gc" to comment visual regions/lines
 	{ "numToStr/Comment.nvim", opts = {} },
 	-- 'jk' to ESC insert mode

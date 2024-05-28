@@ -3,7 +3,7 @@ local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
 config.color_scheme = "AdventureTime"
-config.font_size = 13
+config.font_size = 24
 
 config.window_frame = {
 	-- The font used in the tab bar.
