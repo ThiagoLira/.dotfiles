@@ -8,18 +8,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y python3 python3-pip tmux git curl sudo
 
-# Create a new user and grant sudo privileges
-RUN useradd -m thiago && echo "thiago:password" | chpasswd && usermod -aG sudo thiago
 
-# Switch to the new user
-USER thiago
-WORKDIR /home/thiago
-
-# Clone the dotfiles repository
-RUN git clone https://github.com/ThiagoLira/.dotfiles /home/thiago/.dotfiles
+COPY . /root/.dotfiles
 
 # Set the working directory
-WORKDIR /home/thiago/.dotfiles
+WORKDIR /root/.dotfiles
 
 # Install Neovim using the provided script
 RUN chmod +x install_neovim.sh install_stow.sh install_tmux_tpm.sh && \
