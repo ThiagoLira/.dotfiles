@@ -26,6 +26,17 @@ vim.opt.showmode = false
 --  See `:help 'clipboard'`
 vim.opt.clipboard = "unnamedplus"
 
+-- Copy from nvim to wsl clipboard
+if vim.fn.has("wsl") == 1 then
+	vim.api.nvim_create_autocmd("TextYankPost", {
+		callback = function()
+			vim.schedule(function()
+				vim.fn.system("clip.exe", vim.fn.getreg("0"))
+			end)
+		end,
+	})
+end
+
 -- Enable break indent
 vim.opt.breakindent = true
 
@@ -132,6 +143,9 @@ require("lazy").setup({
 		config = function()
 			return require("tmux").setup()
 		end,
+	},
+	{
+		"roxma/vim-tmux-clipboard",
 	},
 	-- "gc" to comment visual regions/lines
 	{ "numToStr/Comment.nvim", opts = {} },
