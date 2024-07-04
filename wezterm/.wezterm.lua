@@ -13,6 +13,7 @@ return {
 	font_hinting = "Full", -- None, Vertical, VerticalSubpixel, Full
 	leader = { key = "w", mods = "CTRL" },
 	hide_tab_bar_if_only_one_tab = true,
+	config.window_close_confirmation = 'NeverPrompt',
 	keys = {
 		{ key = "s", mods = "LEADER", action = wezterm.action({ SplitVertical = { domain = "CurrentPaneDomain" } }) },
 		{ key = "v", mods = "LEADER", action = wezterm.action({ SplitHorizontal = { domain = "CurrentPaneDomain" } }) },
