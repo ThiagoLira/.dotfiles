@@ -124,6 +124,36 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
+-- Function to rerun last command in the first terminal pane
+function RerunLastCommandInFirstTerminal()
+	local current_win = vim.api.nvim_get_current_win()
+	local terminal_found = false
+	local terminal_winid = nil
+
+	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+		local buf = vim.api.nvim_win_get_buf(win)
+		if vim.api.nvim_buf_get_option(buf, "buftype") == "terminal" then
+			terminal_winid = win
+			terminal_found = true
+			break
+		end
+	end
+
+	if terminal_found and terminal_winid then
+		vim.api.nvim_set_current_win(terminal_winid)
+		vim.api.nvim_feedkeys("i !-1\n", "n", false)
+		vim.defer_fn(function()
+			vim.api.nvim_set_current_win(current_win)
+		end, 100)
+	else
+		print("No terminal found")
+	end
+end
+
+-- Create a custom command to call the function
+vim.api.nvim_create_user_command("RerunCommand", RerunLastCommandInFirstTerminal, {})
+vim.api.nvim_set_keymap("n", "<leader>rr", ":RerunCommand<CR>", { noremap = true, silent = true })
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -132,7 +162,6 @@ if not vim.loop.fs_stat(lazypath) then
 	vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
-
 -- [[ Configure and install plugins ]]
 require("lazy").setup({
 
