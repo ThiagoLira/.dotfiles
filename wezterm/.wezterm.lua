@@ -1,18 +1,10 @@
 local wezterm = require("wezterm")
 return {
 	color_scheme = "AdventureTime",
-	-- colors = {
-	--   background = "#0c0e14",
-	-- },
-	window_decorations = "NONE",
-	font = wezterm.font({ family = "Roboto", weight = "Bold" }),
-	font_size = 17.0,
-	active_titlebar_bg = "#333333",
-	inactive_titlebar_bg = "#333333",
-	font_antialias = "Subpixel", -- None, Greyscale, Subpixel
+	font = wezterm.font("JetBrains Mono"),
+	font_size = 19.0,
 	font_hinting = "Full", -- None, Vertical, VerticalSubpixel, Full
 	leader = { key = "w", mods = "CTRL" },
-	hide_tab_bar_if_only_one_tab = true,
 	window_close_confirmation = "NeverPrompt",
 	keys = {
 		{ key = "s", mods = "LEADER", action = wezterm.action({ SplitVertical = { domain = "CurrentPaneDomain" } }) },
