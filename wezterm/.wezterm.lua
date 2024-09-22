@@ -3,7 +3,6 @@ return {
 	color_scheme = "AdventureTime",
 	font = wezterm.font("JetBrains Mono"),
 	font_size = 19.0,
-	font_hinting = "Full", -- None, Vertical, VerticalSubpixel, Full
 	leader = { key = "w", mods = "CTRL" },
 	window_close_confirmation = "NeverPrompt",
 	keys = {
