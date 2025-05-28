@@ -475,7 +475,6 @@ require("lazy").setup({
 			local servers = {
 				clangd = {},
 				-- gopls = {},
-				glsl_analyser = {},
 				pyright = {},
 				rust_analyzer = {},
 				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -737,32 +736,70 @@ require("lazy").setup({
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
 		main = "nvim-treesitter.configs", -- Sets main module to use for opts
-		-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-		opts = {
-			ensure_installed = {
-				"bash",
-				"c",
-				"diff",
-				"html",
-				"lua",
-				"luadoc",
-				"markdown",
-				"markdown_inline",
-				"query",
-				"vim",
-				"vimdoc",
-			},
-			-- Autoinstall languages that are not installed
-			auto_install = true,
-			highlight = {
-				enable = true,
-				-- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-				--  If you are experiencing weird indenting issues, add the language to
-				--  the list of additional_vim_regex_highlighting and disabled languages for indent.
-				additional_vim_regex_highlighting = { "ruby" },
-			},
-			indent = { enable = true, disable = { "ruby" } },
+		dependencies = {
+			-- This is the key addition
+			"nvim-treesitter/nvim-treesitter-textobjects",
 		},
+		-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
+		config = function()
+			require("nvim-treesitter.configs").setup({
+				ensure_installed = { "bash", "c", "html", "lua", "markdown", "vim", "vimdoc", "python" },
+				-- Autoinstall languages that are not installed
+				auto_install = true,
+				highlight = { enable = true },
+				indent = { enable = true },
+
+				-- Configure textobjects
+				textobjects = {
+					select = {
+						enable = true,
+						-- Automatically jump forward to textobj, similar to targets.vim
+						lookahead = true,
+						keymaps = {
+							-- You can use the capture groups defined in textobjects.scm
+							["af"] = "@function.outer",
+							["if"] = "@function.inner",
+							["ac"] = "@class.outer",
+							["ic"] = "@class.inner",
+							["aa"] = "@parameter.outer", -- For arguments
+							["ia"] = "@parameter.inner",
+							["al"] = "@loop.outer", -- for/while loops
+							["il"] = "@loop.inner",
+							["ai"] = "@conditional.outer", -- if/else
+							["ii"] = "@conditional.inner",
+							["a="] = "@assignment.outer", -- variable = value
+							["i="] = "@assignment.inner",
+							["ab"] = "@block.outer", -- any block
+							["ib"] = "@block.inner",
+							-- You can add more, like for comments, etc.
+							-- ["a/"] = "@comment.outer", -- if your parser supports it
+						},
+					},
+					move = {
+						enable = true,
+						set_jumps = true, -- whether to set jumps in the jumplist
+						goto_next_start = {
+							["]m"] = "@function.outer",
+							["]]"] = "@class.outer", -- if you prefer this over incremental selection's default
+						},
+						goto_next_end = {
+							["]M"] = "@function.outer",
+							["]["] = "@class.outer",
+						},
+						goto_previous_start = {
+							["[m"] = "@function.outer",
+							["[["] = "@class.outer", -- if you prefer this over incremental selection's default
+						},
+						goto_previous_end = {
+							["[M"] = "@function.outer",
+							["[]"] = "@class.outer",
+						},
+					},
+					-- You can also enable swap and other modules here
+					-- swap = { ... },
+				},
+			})
+		end,
 	},
 }, {
 	ui = {
