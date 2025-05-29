@@ -150,7 +150,12 @@ require("lazy").setup({
 			},
 		},
 	},
-
+	{
+		"aserowy/tmux.nvim",
+		config = function()
+			return require("tmux").setup()
+		end,
+	},
 	{ -- Useful plugin to show you pending keybinds.
 		"folke/which-key.nvim",
 		event = "VimEnter", -- Sets the loading event to 'VimEnter'
@@ -822,3 +827,42 @@ require("lazy").setup({
 		},
 	},
 })
+
+-- [[  REMAPS   ]]
+-- Remap for dealing with word wrap
+vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+-- better use of <Space> leader
+vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
+-- open dotfile location
+vim.keymap.set("n", "<leader>df", function()
+	vim.cmd("e" .. os.getenv("HOME") .. "/.config/nvim/init.lua")
+end, { desc = "Open init.lua" })
+--  switch between last two files
+vim.keymap.set("n", "<leader><tab>", "<C-^>")
+
+--  split  panes
+vim.keymap.set("n", "<leader>ws", function()
+	vim.cmd("split")
+end, { desc = "Open horizontal split" })
+
+vim.keymap.set("n", "<leader>wv", function()
+	vim.cmd("vsplit")
+end, { desc = "Open vertical split" })
+
+vim.keymap.set("n", "<leader>tt", function()
+	vim.cmd("10split +term")
+end, { desc = "Open terminal below" })
+
+vim.keymap.set("n", "<leader>tv", function()
+	vim.cmd("40vsplit +term")
+end, { desc = "Open terminal on the right" })
+
+vim.keymap.set("n", "<leader>tq", function()
+	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+		local buf = vim.api.nvim_win_get_buf(win)
+		if vim.api.nvim_buf_get_option_value(buf, "buftype") == "terminal" then
+			vim.api.nvim_win_close(win, true)
+		end
+	end
+end, { desc = "Close all open terminals" })
