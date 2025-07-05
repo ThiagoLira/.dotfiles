@@ -488,7 +488,7 @@ require("lazy").setup({
 				--    https://github.com/pmizio/typescript-tools.nvim
 				--
 				-- But for many setups, the LSP (`ts_ls`) will work just fine
-				-- ts_ls = {},
+				ts_ls = {},
 				--
 
 				lua_ls = {
@@ -850,3 +850,14 @@ vim.keymap.set("n", "<leader>tq", function()
 		end
 	end
 end, { desc = "Close all open terminals" })
+
+vim.keymap.set("n", "<space>c", function()
+	vim.ui.input({}, function(c)
+		if c and c ~= "" then
+			vim.cmd("noswapfile vnew")
+			vim.bo.buftype = "nofile"
+			vim.bo.bufhidden = "wipe"
+			vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.fn.systemlist(c))
+		end
+	end)
+end)
