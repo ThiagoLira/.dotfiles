@@ -1,0 +1,49 @@
+# --- Ghostty “tmux-y” keybindings (Leader = Ctrl+b) ---
+
+# New window / tab
+keybind = ctrl+b>n=new_window
+keybind = ctrl+b>c=new_tab
+
+# Split like tmux: % vertical, " horizontal
+keybind = ctrl+b>s=new_split:right
+keybind = ctrl+b>v=new_split:down
+
+# Move between splits (vim-style hjkl)
+keybind = ctrl+b>h=goto_split:left
+keybind = ctrl+b>j=goto_split:down
+keybind = ctrl+b>k=goto_split:up
+keybind = ctrl+b>l=goto_split:right
+
+# Zoom current split (like tmux z)
+keybind = ctrl+b>z=toggle_split_zoom
+
+# Resize splits (Shift+hjkl after the leader)
+keybind = ctrl+b>H=resize_split:left,40
+keybind = ctrl+b>J=resize_split:down,40
+keybind = ctrl+b>K=resize_split:up,40
+keybind = ctrl+b>L=resize_split:right,40
+
+# Close things (x = close current surface, & = close tab)
+keybind = ctrl+b>x=close_surface
+keybind = ctrl+b>&=close_tab
+
+# Tabs: prev/next, move, jump
+keybind = ctrl+b>[=previous_tab
+keybind = ctrl+b>]=next_tab
+keybind = ctrl+b>1=goto_tab:1
+keybind = ctrl+b>2=goto_tab:2
+keybind = ctrl+b>3=goto_tab:3
+keybind = ctrl+b>4=goto_tab:4
+keybind = ctrl+b>5=goto_tab:5
+keybind = ctrl+b>6=goto_tab:6
+keybind = ctrl+b>7=goto_tab:7
+keybind = ctrl+b>8=goto_tab:8
+keybind = ctrl+b>9=last_tab
+
+# Rename current surface (tmux `,`)
+keybind = ctrl+b>,=prompt_surface_title
+
+# Quality-of-life
+keybind = ctrl+b>r=reload_config
+keybind = ctrl+b>?=toggle_tab_overview
+
