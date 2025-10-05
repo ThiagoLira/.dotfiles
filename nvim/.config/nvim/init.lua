@@ -209,6 +209,28 @@ require("lazy").setup({
 		},
 	},
 
+	{ -- Curated Neovim tips with a custom picker and daily reminder
+		"saxon1964/neovim-tips",
+		version = "*",
+		dependencies = {
+			"MunifTanjim/nui.nvim",
+			"MeanderingProgrammer/render-markdown.nvim",
+		},
+		opts = {
+			user_file = vim.fn.stdpath("config") .. "/neovim_tips/user_tips.md",
+			user_tip_prefix = "[User] ",
+			warn_on_conflicts = true,
+			daily_tip = 1,
+		},
+		init = function()
+			local map = vim.keymap.set
+			map("n", "<leader>nto", ":NeovimTips<CR>", { desc = "Neovim tips", silent = true })
+			map("n", "<leader>nte", ":NeovimTipsEdit<CR>", { desc = "Edit Neovim tips", silent = true })
+			map("n", "<leader>nta", ":NeovimTipsAdd<CR>", { desc = "Add Neovim tip", silent = true })
+			map("n", "<leader>nth", ":help neovim-tips<CR>", { desc = "Neovim tips help", silent = true })
+		end,
+	},
+
 	{ -- Fuzzy Finder (files, lsp, etc)
 		"nvim-telescope/telescope.nvim",
 		event = "VimEnter",
