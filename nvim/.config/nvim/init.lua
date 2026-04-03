@@ -203,8 +203,11 @@ require("lazy").setup({
 			-- Document existing key chains
 			spec = {
 				{ "<leader>s", group = "[S]earch" },
-				{ "<leader>t", group = "[T]oggle" },
+				{ "<leader>t", group = "[T]erminal / Toggle" },
 				{ "<leader>h", group = "Git [H]unk", mode = { "n", "v" } },
+				{ "<leader>w", group = "[W]indow" },
+				{ "<leader>a", group = "[A]I Claude" },
+				{ "<leader>d", group = "[D]otfiles" },
 			},
 		},
 	},
@@ -572,6 +575,7 @@ require("lazy").setup({
 
 	{ -- AI code completion via OpenRouter (ghost text, Tab to accept)
 		"milanglacier/minuet-ai.nvim",
+		enabled = false,
 		dependencies = { "nvim-lua/plenary.nvim" },
 		config = function()
 			require("minuet").setup({
@@ -610,6 +614,23 @@ require("lazy").setup({
 				},
 			})
 		end,
+	},
+
+	{ -- Claude Code integration (selection tracking, terminal, diffs)
+		"coder/claudecode.nvim",
+		dependencies = { "folke/snacks.nvim" },
+		config = true,
+		keys = {
+			{ "<leader>ac", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude" },
+			{ "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "Focus Claude" },
+			{ "<leader>ar", "<cmd>ClaudeCode --resume<cr>", desc = "Resume Claude" },
+			{ "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
+			{ "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select model" },
+			{ "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", desc = "Add buffer" },
+			{ "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Send selection" },
+			{ "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
+			{ "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Reject diff" },
+		},
 	},
 
 	{ -- Autocompletion
@@ -809,7 +830,7 @@ vim.keymap.set("n", "<leader>df", function()
 	vim.cmd("e" .. os.getenv("HOME") .. "/.config/nvim/init.lua")
 end, { desc = "Open init.lua" })
 --  switch between last two files
-vim.keymap.set("n", "<leader><tab>", "<C-^>")
+vim.keymap.set("n", "<leader><tab>", "<C-^>", { desc = "Switch to last buffer" })
 
 --  split  panes
 vim.keymap.set("n", "<leader>ws", function()
@@ -846,4 +867,4 @@ vim.keymap.set("n", "<space>c", function()
 			vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.fn.systemlist(c))
 		end
 	end)
-end)
+end, { desc = "Run shell [C]ommand to buffer" })
