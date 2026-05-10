@@ -435,73 +435,81 @@ require("lazy").setup({
 			end
 		end,
 	},
-	{ -- Highlight, edit, and navigate code
+	{ -- Highlight, edit, and navigate code (main-branch rewrite, Nvim 0.12+)
 		"nvim-treesitter/nvim-treesitter",
+		branch = "main",
+		lazy = false,
 		build = ":TSUpdate",
-		main = "nvim-treesitter.configs", -- Sets main module to use for opts
 		dependencies = {
-			-- This is the key addition
-			"nvim-treesitter/nvim-treesitter-textobjects",
+			{ "nvim-treesitter/nvim-treesitter-textobjects", branch = "main" },
 		},
-		-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
 		config = function()
-			require("nvim-treesitter.configs").setup({
-				ensure_installed = { "bash", "c", "html", "lua", "markdown", "vim", "vimdoc", "python" },
-				-- Autoinstall languages that are not installed
-				auto_install = true,
-				highlight = { enable = true },
-				indent = { enable = true },
-
-				-- Configure textobjects
-				textobjects = {
-					select = {
-						enable = true,
-						-- Automatically jump forward to textobj, similar to targets.vim
-						lookahead = true,
-						keymaps = {
-							-- You can use the capture groups defined in textobjects.scm
-							["af"] = "@function.outer",
-							["if"] = "@function.inner",
-							["ac"] = "@class.outer",
-							["ic"] = "@class.inner",
-							["aa"] = "@parameter.outer", -- For arguments
-							["ia"] = "@parameter.inner",
-							["al"] = "@loop.outer", -- for/while loops
-							["il"] = "@loop.inner",
-							["ai"] = "@conditional.outer", -- if/else
-							["ii"] = "@conditional.inner",
-							["a="] = "@assignment.outer", -- variable = value
-							["i="] = "@assignment.inner",
-							["ab"] = "@block.outer", -- any block
-							["ib"] = "@block.inner",
-							-- You can add more, like for comments, etc.
-							-- ["a/"] = "@comment.outer", -- if your parser supports it
+			-- Community Mojo grammar (not in upstream registry).
+			-- Must register on `User TSUpdate` because install() resets the
+			-- parsers module cache before reading it.
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "TSUpdate",
+				callback = function()
+					require("nvim-treesitter.parsers").mojo = {
+						install_info = {
+							url = "https://github.com/adityasz/tree-sitter-mojo",
+							revision = "bfd8548ba1f248a4ea24a7fd75fbc3c860efbdbf",
 						},
-					},
-					move = {
-						enable = true,
-						set_jumps = true, -- whether to set jumps in the jumplist
-						goto_next_start = {
-							["]m"] = "@function.outer",
-							["]]"] = "@class.outer", -- if you prefer this over incremental selection's default
-						},
-						goto_next_end = {
-							["]M"] = "@function.outer",
-							["]["] = "@class.outer",
-						},
-						goto_previous_start = {
-							["[m"] = "@function.outer",
-							["[["] = "@class.outer", -- if you prefer this over incremental selection's default
-						},
-						goto_previous_end = {
-							["[M"] = "@function.outer",
-							["[]"] = "@class.outer",
-						},
-					},
-					-- You can also enable swap and other modules here
-					-- swap = { ... },
-				},
+					}
+				end,
 			})
+			vim.filetype.add({ extension = { mojo = "mojo" } })
+
+			local langs = {
+				"bash", "c", "html", "lua", "markdown", "markdown_inline",
+				"vim", "vimdoc", "python", "mojo",
+			}
+			require("nvim-treesitter").install(langs)
+
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = langs,
+				callback = function(ev)
+					pcall(vim.treesitter.start, ev.buf)
+					vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+					vim.wo[0][0].foldmethod = "expr"
+					vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+				end,
+			})
+
+			require("nvim-treesitter-textobjects").setup({
+				select = { lookahead = true },
+				move = { set_jumps = true },
+			})
+
+			local sel_maps = {
+				["af"] = "@function.outer",    ["if"] = "@function.inner",
+				["ac"] = "@class.outer",       ["ic"] = "@class.inner",
+				["aa"] = "@parameter.outer",   ["ia"] = "@parameter.inner",
+				["al"] = "@loop.outer",        ["il"] = "@loop.inner",
+				["ai"] = "@conditional.outer", ["ii"] = "@conditional.inner",
+				["a="] = "@assignment.outer",  ["i="] = "@assignment.inner",
+				["ab"] = "@block.outer",       ["ib"] = "@block.inner",
+			}
+			for lhs, obj in pairs(sel_maps) do
+				vim.keymap.set({ "x", "o" }, lhs, function()
+					require("nvim-treesitter-textobjects.select").select_textobject(obj, "textobjects")
+				end, { desc = "TS select " .. obj })
+			end
+
+			local move = require("nvim-treesitter-textobjects.move")
+			local move_maps = {
+				{ "]m", function() move.goto_next_start("@function.outer", "textobjects") end },
+				{ "]]", function() move.goto_next_start("@class.outer", "textobjects") end },
+				{ "]M", function() move.goto_next_end("@function.outer", "textobjects") end },
+				{ "][", function() move.goto_next_end("@class.outer", "textobjects") end },
+				{ "[m", function() move.goto_previous_start("@function.outer", "textobjects") end },
+				{ "[[", function() move.goto_previous_start("@class.outer", "textobjects") end },
+				{ "[M", function() move.goto_previous_end("@function.outer", "textobjects") end },
+				{ "[]", function() move.goto_previous_end("@class.outer", "textobjects") end },
+			}
+			for _, m in ipairs(move_maps) do
+				vim.keymap.set({ "n", "x", "o" }, m[1], m[2], { desc = "TS move" })
+			end
 		end,
 	},
 }, {
@@ -550,8 +558,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
 			vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
 		end
 
-		map("grn", vim.lsp.buf.rename, "[R]e[n]ame")
-		map("gra", vim.lsp.buf.code_action, "[G]oto Code [A]ction", { "n", "x" })
+		-- Nvim 0.11+ ships defaults: grn (rename), gra (code action), grr (refs),
+		-- gri (impl), gO (doc symbols), K (hover), [d/]d (diagnostics), CTRL-S
+		-- (signature in insert). Below overrides them with telescope pickers and
+		-- adds the ones that aren't defaults (grd, grD, grt, gW).
 		map("grr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
 		map("gri", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
 		map("grd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
@@ -598,7 +608,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 	end,
 })
 
-vim.lsp.enable({ "clangd", "pyright", "rust_analyzer", "ts_ls", "lua_ls" })
+vim.lsp.enable({ "clangd", "pyright", "rust_analyzer", "ts_ls", "lua_ls", "mojo" })
 
 -- [[  REMAPS   ]]
 -- Remap for dealing with word wrap
