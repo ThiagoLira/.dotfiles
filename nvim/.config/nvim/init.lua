@@ -324,8 +324,6 @@ require("lazy").setup({
 			},
 		},
 	},
-	{ "j-hui/fidget.nvim", opts = {} },
-
 	{ -- Autoformat
 		"stevearc/conform.nvim",
 		event = { "BufWritePre" },
