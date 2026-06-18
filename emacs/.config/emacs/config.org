@@ -1014,8 +1014,12 @@ first instead of silently refusing or silently doing it.
 #+begin_src emacs-lisp
 (when (>= emacs-major-version 31)
   (my/setopt-when-bound
-   vc-dir-auto-hide-up-to-date 'revert
-   vc-allow-rewriting-published-history 'ask))
+   vc-allow-rewriting-published-history 'ask)
+  ;; The symbol `revert' is documented and works, but the option's
+  ;; defcustom :type is (too narrowly) `boolean', so `setopt' would warn.
+  ;; Set it directly to keep the value without the spurious type warning.
+  (when (boundp 'vc-dir-auto-hide-up-to-date)
+    (setq vc-dir-auto-hide-up-to-date 'revert)))
 #+end_src
 
 ** The small civilizing touches
