@@ -1,0 +1,1071 @@
+#+title: Emacs, Literally
+#+subtitle: a config you read, run, and learn from
+#+author: thlira
+#+startup: overview
+#+property: header-args:emacs-lisp :tangle ./config.el :results silent :lexical yes
+
+* How to read this book
+:PROPERTIES:
+:CUSTOM_ID: intro
+:END:
+
+This file *is* your Emacs configuration. Every ~emacs-lisp~ block below is
+extracted ("tangled") into =config.el= and loaded at startup. The prose
+between blocks is the manual for your own editor. Change a block, save,
+and the file re-tangles itself — restart Emacs (or eval the block in
+place) and the change is live.
+
+Three keys give you the whole reading experience:
+
+- =TAB= on a heading :: fold / unfold it. =S-TAB= cycles the whole file.
+- =C-c C-c= in a code block :: execute it *right now*, in the running editor.
+- =C-c C-o= on a link :: follow it — including links that open manuals or
+  run code.
+
+And the single most important key in all of Emacs: =C-g= — *cancel*.
+Whatever is happening, =C-g= gets you out. (In evil-land =ESC= mostly does
+the same job; =C-g= works even where evil isn't.)
+
+Try it immediately. Put your cursor in this block and press =C-c C-c=
+(notation: =C-c= means Control+c — so Ctrl-c, Ctrl-c):
+
+#+begin_src emacs-lisp :tangle no :results silent
+(message "Hello %s. This editor is now partially made of you."
+         user-login-name)
+#+end_src
+
+Look at the bottom line of the screen (the /echo area/) — your message is
+there. You just evaluated Lisp inside your editor. That feedback loop is
+the entire reason Emacs exists.
+
+** Your first-run checklist [0/6]
+
+These need a one-time action each. Mark them done with =C-c C-c= on the
+checkbox as you go — the =[0/6]= cookie above updates itself.
+
+- [ ] Let the first launch finish: ~30 packages install and
+  native-compile. Watch the =*Messages*= buffer scroll by. One-time cost.
+- [ ] Run [[elisp:(nerd-icons-install-fonts t)][M-x nerd-icons-install-fonts]] — installs the icon font the
+  modeline and completion menus use. Then restart Emacs.
+- [ ] Run [[elisp:my/treesit-install-all][M-x my/treesit-install-all]] — compiles tree-sitter grammars
+  (needs =gcc=, which you have).
+- [ ] Install language servers (same servers your nvim used, but from
+  pacman instead of mason): ~sudo pacman -S --needed clang pyright
+  rust-analyzer typescript-language-server lua-language-server~
+- [ ] For the terminal chapter: ~sudo pacman -S --needed cmake libvterm~
+- [ ] Press =SPC h k= and then press any key you're curious about. Emacs
+  will tell you exactly what that key runs and link to its source. This
+  is /self-documenting software/ — your most powerful learning tool here.
+
+If anything ever goes irreparably wrong: ~emacs --init-directory=/tmp/x~
+starts a pristine Emacs that ignores this config entirely. And if the
+first launch was interrupted mid-install and packages are half-broken,
+the cure is ~rm -rf ~/.config/emacs/elpa~ — next launch reinstalls
+everything cleanly.
+
+* Act I — Ignition
+:PROPERTIES:
+:CUSTOM_ID: early-init
+:END:
+
+Emacs reads =early-init.el= before it builds the first frame or touches
+packages. Two things belong there and nowhere else.
+
+First: garbage collection. The default GC threshold (800kB) is from the
+1980s; during startup it triggers hundreds of collections. We raise it to
+infinity for startup, then settle on 32MB — the current consensus after
+Doom's "set it to 1GB" experiment failed.
+
+#+begin_src emacs-lisp :tangle ./early-init.el
+;;; early-init.el --- tangled from config.org -*- lexical-binding: t -*-
+(setq gc-cons-threshold most-positive-fixnum)
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold (* 32 1024 1024))
+            (message "Emacs ready in %s with %d garbage collections."
+                     (emacs-init-time) gcs-done)))
+#+end_src
+
+Second: UI chrome. Disabling the toolbar /after/ the frame exists makes
+the frame visibly flicker and resize. Setting frame parameters here means
+the bars are never created at all.
+
+#+begin_src emacs-lisp :tangle ./early-init.el
+(push '(menu-bar-lines . 0) default-frame-alist)
+(push '(tool-bar-lines . 0) default-frame-alist)
+(push '(vertical-scroll-bars) default-frame-alist)
+(setq frame-inhibit-implied-resize t
+      inhibit-startup-screen t)
+#+end_src
+
+That startup-time message is real, by the way — check it:
+[[elisp:(message "This session: started in %s" (emacs-init-time))][eval (emacs-init-time)]]
+
+* Act II — Packages
+:PROPERTIES:
+:CUSTOM_ID: packages
+:END:
+
+Your nvim config bootstraps =lazy.nvim=. Emacs needs no equivalent
+anymore: =package.el= (the installer) and =use-package= (the declarative
+wrapper, like a lazy.nvim plugin spec) are both built in since Emacs 29.
+The community drifted through =straight.el= and =elpaca= and largely came
+back home.
+
+#+begin_src emacs-lisp
+;;; config.el --- tangled from config.org -*- lexical-binding: t -*-
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(package-initialize)
+(unless package-archive-contents     ; first run: fetch the package index
+  (package-refresh-contents))
+(require 'use-package-ensure)        ; load :ensure machinery eagerly --
+(setq use-package-always-ensure t)   ; otherwise this setq is silently ignored
+                                     ; until a form mentions :ensure explicitly
+#+end_src
+
+Anatomy of a ~use-package~ form, since you'll read thirty of them below:
+~:init~ runs /before/ the package loads, ~:config~ after, ~:hook~ and
+~:bind~ attach things *and* defer loading until needed — the same trick
+as lazy.nvim's ~event=~ and ~keys=~.
+
+* Act III — Your init.lua, translated
+:PROPERTIES:
+:CUSTOM_ID: defaults
+:END:
+
+Every option here is a line you already had in nvim. Same settings,
+different names:
+
+| init.lua                  | here                            |
+|---------------------------+---------------------------------|
+| ~number = true~           | ~display-line-numbers-mode~     |
+| ~scrolloff = 10~          | ~scroll-margin~                 |
+| ~ignorecase + smartcase~  | ~completion-ignore-case~ + evil |
+| ~undofile = true~         | ~undo-fu-session~ (Act IV)      |
+| ~splitright / splitbelow~ | ~evil-v/split-window-...~       |
+| ~cursorline = true~       | ~global-hl-line-mode~           |
+| ~timeoutlen = 300~        | ~which-key-idle-delay~          |
+| ~clipboard = unnamedplus~ | default in GUI Emacs            |
+
+#+begin_src emacs-lisp
+(setq scroll-margin 8                  ; scrolloff
+      scroll-conservatively 101        ; never recenter-jump while scrolling
+      ring-bell-function #'ignore
+      use-short-answers t              ; y/n instead of yes/no
+      sentence-end-double-space nil
+      completion-ignore-case t         ; the ignorecase family
+      read-buffer-completion-ignore-case t
+      read-file-name-completion-ignore-case t)
+
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+(add-hook 'text-mode-hook #'display-line-numbers-mode)
+(global-hl-line-mode 1)                ; cursorline
+(column-number-mode 1)                 ; LINE:COL in the modeline
+(pixel-scroll-precision-mode 1)        ; smooth wheel scrolling
+(electric-pair-mode 1)                 ; minimal autopairs
+#+end_src
+
+Things nvim does by default that Emacs makes you ask for — remembering
+where you were, what you had open, what you typed in prompts:
+
+#+begin_src emacs-lisp
+(savehist-mode 1)                      ; minibuffer history survives restarts
+(save-place-mode 1)                    ; reopen files at your last position
+(recentf-mode 1)                       ; track recent files (SPC s .)
+(global-auto-revert-mode 1)            ; pick up on-disk changes, like nvim
+#+end_src
+
+Emacs litters =file~= backups and =#file#= autosaves next to your work
+unless told otherwise. Corral them, and keep =M-x customize='s machine
+output out of this hand-written config:
+
+#+begin_src emacs-lisp
+(make-directory (locate-user-emacs-file "autosaves/") t)
+(setq backup-directory-alist `((".*" . ,(locate-user-emacs-file "backups/")))
+      auto-save-file-name-transforms `((".*" ,(locate-user-emacs-file "autosaves/") t))
+      create-lockfiles nil
+      custom-file (locate-user-emacs-file "custom.el"))
+(load custom-file 'noerror 'nomessage)
+#+end_src
+
+* Act IV — Evil
+:PROPERTIES:
+:CUSTOM_ID: evil
+:END:
+
+The chapter that makes this place habitable. ~evil~ is not a vim
+compatibility shim — it's a complete, arguably superior implementation
+of vim's modal grammar on top of Emacs. Operators compose with text
+objects and motions exactly as your fingers expect.
+
+Every ~evil-want-*~ variable must be set *before* evil loads (they're
+read once, at load time) — hence ~:init~, not ~:config~:
+
+#+begin_src emacs-lisp
+(use-package evil
+  :init
+  (setq evil-want-keybinding nil    ; evil-collection replaces evil's own extras
+        evil-want-C-u-scroll t      ; C-u scrolls; prefix-arg moves to SPC u
+        evil-want-C-i-jump nil      ; C-i is TAB in terminals; keep TAB working
+        evil-want-Y-yank-to-eol t   ; Y = y$, fixing vim's oldest inconsistency
+        evil-respect-visual-line-mode t   ; your j/k-through-wrapped-lines remap
+        evil-undo-system 'undo-redo ; built-in since Emacs 28
+        evil-search-module 'evil-search   ; vim-style / search with highlight
+        evil-split-window-below t   ; splitbelow
+        evil-vsplit-window-right t) ; splitright
+  :config
+  (evil-mode 1)
+  ;; ESC in normal state also clears search highlight -- your <Esc> nohlsearch
+  (advice-add 'evil-force-normal-state :after #'evil-ex-nohighlight)
+  ;; ESC quits minibuffer prompts too, instead of stacking them
+  (global-set-key [escape] #'keyboard-escape-quit))
+#+end_src
+
+Vanilla evil only covers editing buffers. ~evil-collection~ brings vim
+keys to the /other/ two hundred places — dired, magit, help, package
+list — so =j/k/gg/G= work everywhere you land:
+
+#+begin_src emacs-lisp
+(use-package evil-collection
+  :after evil
+  :config (evil-collection-init))
+#+end_src
+
+Your muscle memory, ported piece by piece. ~mini.surround~ →
+~evil-surround~ (vim grammar: =ys=, =cs=, =ds=), and =gc= to comment —
+nvim has it built in, evil doesn't:
+
+#+begin_src emacs-lisp
+(use-package evil-surround
+  :after evil
+  :config (global-evil-surround-mode 1))
+
+(use-package evil-nerd-commenter
+  :after evil
+  :config
+  (evil-define-key '(normal visual) 'global "gc" #'evilnc-comment-operator))
+#+end_src
+
+Your =TextYankPost= highlight autocmd, reimplemented as three lines of
+advice on the yank operator (try =yap= on this paragraph after a restart):
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'evil
+  (require 'pulse)
+  (advice-add 'evil-yank :around
+              (lambda (orig beg end &rest args)
+                (pulse-momentary-highlight-region beg end)
+                (apply orig beg end args))))
+#+end_src
+
+Two upgrades nvim never gave you. *Persistent undo across sessions* (your
+~undofile = true~) plus *vundo*, a navigable tree of every state this
+buffer has ever been in — undo stops being a tightrope:
+
+#+begin_src emacs-lisp
+(use-package undo-fu-session
+  :config (undo-fu-session-global-mode 1))
+
+(use-package vundo
+  :commands vundo)   ; bound to SPC t u below; h/l to walk, q to quit
+#+end_src
+
+And *avy*: type =gs=, then two characters you can see anywhere on screen,
+and the cursor teleports there. After a week this replaces most counting
+and =/= searching:
+
+#+begin_src emacs-lisp
+(use-package avy
+  :after evil
+  :config
+  (evil-define-key '(normal visual) 'global "gs" #'avy-goto-char-2))
+#+end_src
+
+Finally, window navigation. In nvim you owned =C-h/j/k/l=. In Emacs,
+=C-h= is the sacred help prefix — and we take it anyway, in normal state
+only. Help stays on =F1= and =SPC h=, which read better from evil anyway:
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'evil
+  (dolist (state '(normal visual motion))
+    (evil-define-key state 'global
+      (kbd "C-h") #'evil-window-left
+      (kbd "C-j") #'evil-window-down
+      (kbd "C-k") #'evil-window-up
+      (kbd "C-l") #'evil-window-right)))
+#+end_src
+
+Check your state machine from the inside — run this, then again from
+insert mode (=i= first, then =C-c C-c= still works there):
+
+#+begin_src emacs-lisp :tangle no
+(message "evil state: %s | this buffer: %s" evil-state (buffer-name))
+#+end_src
+
+* Act V — The leader key
+:PROPERTIES:
+:CUSTOM_ID: leader
+:END:
+
+~which-key~ has been built into Emacs since 30.1 — the popup after a
+pause is stock behavior now. Its delay is your nvim ~timeoutlen~:
+
+#+begin_src emacs-lisp
+(setq which-key-idle-delay 0.3)
+(which-key-mode 1)
+#+end_src
+
+~general.el~ defines the =SPC= leader map. The layout below *is your nvim
+layout*: =SPC s= search, =SPC w= windows, =SPC t= terminal/toggles,
+=SPC SPC= buffers, =SPC TAB= alternate file, =SPC f= format, =SPC a= AI,
+=SPC d= dotfiles. New citizens: =SPC g= git, =SPC h= help, =SPC p=
+project, =SPC q= quit.
+
+Note the trick on =w=, =h=, =p=: we don't define those maps — we mount
+Emacs' own prefix maps (=evil-window-map=, =help-map=,
+=project-prefix-map=) onto the leader and inherit everything for free.
+=SPC w v= and =SPC w s= split exactly like your nvim binds because
+that's what evil's window map already contained.
+
+#+begin_src emacs-lisp
+(use-package general
+  :after evil
+  :config
+  (general-create-definer my/leader
+    :states '(normal visual)
+    :keymaps 'override
+    :prefix "SPC")
+
+  (my/leader
+    "SPC" '(consult-buffer :wk "buffers")
+    "TAB" '(evil-switch-to-windows-last-buffer :wk "alt buffer")
+    "/"   '(consult-line :wk "search buffer")
+    ":"   '(execute-extended-command :wk "M-x")
+    "u"   '(universal-argument :wk "C-u prefix arg")
+    "f"   '(apheleia-format-buffer :wk "format")
+    "c"   '(async-shell-command :wk "shell command")
+
+    "w"   '(:keymap evil-window-map :wk "windows")
+    "h"   '(:keymap help-map :wk "help")
+    "p"   '(:keymap project-prefix-map :wk "project")
+
+    "s"   '(:ignore t :wk "search")
+    "sf"  '(my/find-file-dwim :wk "files")
+    "sg"  '(consult-ripgrep :wk "grep")
+    "sw"  '(my/grep-word-at-point :wk "grep word")
+    "s/"  '(consult-line-multi :wk "grep open buffers")
+    "sh"  '(consult-info :wk "search the manuals")
+    "sk"  '(embark-bindings :wk "keybindings")
+    "sd"  '(consult-flymake :wk "diagnostics")
+    "si"  '(consult-imenu :wk "symbols")
+    "sr"  '(vertico-repeat :wk "resume last search")
+    "s."  '(consult-recent-file :wk "recent files")
+
+    "g"   '(:ignore t :wk "git")
+    "gg"  '(magit-status :wk "magit")
+    "gb"  '(magit-blame-addition :wk "blame")
+    "gs"  '(diff-hl-stage-current-hunk :wk "stage hunk")
+    "gr"  '(diff-hl-revert-hunk :wk "revert hunk")
+    "gp"  '(diff-hl-show-hunk :wk "preview hunk")
+
+    "t"   '(:ignore t :wk "terminal/toggle")
+    "tt"  '(my/vterm-toggle :wk "terminal toggle")
+    "tT"  '(my/vterm-below :wk "terminal (new below)")
+    "tv"  '(my/vterm-right :wk "terminal right")
+    "th"  '(eglot-inlay-hints-mode :wk "inlay hints")
+    "tu"  '(vundo :wk "undo tree")
+
+    "a"   '(:ignore t :wk "AI")
+    "ac"  '(gptel :wk "chat buffer")
+    "aa"  '(gptel-menu :wk "menu")
+    "as"  '(gptel-send :wk "send region")
+    "ar"  '(gptel-rewrite :wk "rewrite")
+
+    "d"   '(:ignore t :wk "dotfiles")
+    "df"  '(my/open-config :wk "this file")
+    "dr"  '(my/reload-config :wk "reload config")
+    "dd"  '((lambda () (interactive) (dired "~/.dotfiles")) :wk "dired dotfiles")
+
+    "q"   '(:ignore t :wk "quit")
+    "qq"  '(save-buffers-kill-terminal :wk "quit")
+    "qr"  '(restart-emacs :wk "restart")))
+#+end_src
+
+The three tiny commands referenced above — also your first real elisp.
+~interactive~ is what turns a function into a command bindable to keys:
+
+#+begin_src emacs-lisp
+(defun my/open-config ()
+  "Open this literate config."
+  (interactive)
+  (find-file (locate-user-emacs-file "config.org")))
+
+(defun my/reload-config ()
+  "Re-tangle config.org and load it -- apply edits without a restart."
+  (interactive)
+  (require 'ob-tangle)
+  (org-babel-tangle-file (locate-user-emacs-file "config.org"))
+  (load (locate-user-emacs-file "config.el") nil 'nomessage)
+  (message "Dotfiles reloaded."))
+
+(defun my/find-file-dwim ()
+  "Project files when in a project, plain find-file otherwise."
+  (interactive)
+  (if (project-current)
+      (project-find-file)
+    (call-interactively #'find-file)))
+
+(defun my/grep-word-at-point ()
+  "Your <leader>sw: ripgrep the project for the word under point."
+  (interactive)
+  (consult-ripgrep nil (thing-at-point 'word t)))
+#+end_src
+
+Now press =SPC= and *wait a third of a second*. That popup is the map of
+everything above. Explore it; nothing you launch can hurt you, and =C-g=
+always backs out.
+
+* Act VI — The minibuffer is your telescope
+:PROPERTIES:
+:CUSTOM_ID: completion
+:END:
+
+Telescope is one plugin; here the same power is four tiny ones sharing
+the standard completion API. The win: *every* prompt in Emacs becomes a
+fuzzy picker — not just the ones a plugin author blessed.
+
+~vertico~ draws the vertical list. ~orderless~ lets you type space-separated
+terms in any order (~init lua~ matches =init.lua=, =lua/init.el=...):
+
+#+begin_src emacs-lisp
+(use-package vertico
+  :config
+  (vertico-mode 1)
+  (require 'vertico-repeat)            ; SPC s r -- your telescope resume
+  (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
+  ;; In file prompts, DEL eats a whole directory component
+  (keymap-set vertico-map "DEL" #'vertico-directory-delete-char))
+
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless basic)
+        completion-category-overrides '((file (styles basic partial-completion)))))
+#+end_src
+
+~marginalia~ annotates every candidate — docstrings beside commands, sizes
+beside files. ~consult~ provides the actual pickers you bound under
+=SPC s= (live-preview grep, line search, buffer switcher):
+
+#+begin_src emacs-lisp
+(use-package marginalia
+  :config (marginalia-mode 1))
+
+(use-package consult
+  :init
+  (setq xref-show-xrefs-function #'consult-xref       ; references in a picker
+        xref-show-definitions-function #'consult-xref)
+  (global-set-key [remap yank-pop] #'consult-yank-pop)) ; M-p after p: kill-ring picker
+#+end_src
+
+~embark~ has no nvim equivalent: it's a right-click menu for your
+keyboard. Point at /anything/ — a file in a prompt, a URL in a buffer, a
+candidate in a picker — press =C-.= and get every action that applies.
+
+#+begin_src emacs-lisp
+(use-package embark
+  :bind (("C-." . embark-act))
+  :init (setq prefix-help-command #'embark-prefix-help-command))
+
+(use-package embark-consult
+  :after (embark consult))
+#+end_src
+
+Exercises, in increasing order of enlightenment:
+
+- [ ] =SPC SPC=, type a few letters out of order, watch orderless work.
+- [ ] =SPC s g= and type slowly — results and *preview* update live.
+  Then =C-.= on a result and choose ~export~: the live search becomes a
+  regular editable buffer of matches.
+- [ ] =SPC s h=, pick the /Emacs/ manual, search for "rectangle". You
+  just full-text-searched the official docs without leaving home.
+
+* Act VII — Completion in the buffer
+:PROPERTIES:
+:CUSTOM_ID: corfu
+:END:
+
+Your nvim uses the 0.11 native LSP completion. The analog here is
+~corfu~: a small popup over the standard ~completion-at-point~ machinery —
+LSP, elisp, anything — no engine of its own. ~cape~ adds two sources nvim
+users miss: file paths and words-from-open-buffers.
+
+#+begin_src emacs-lisp
+(use-package corfu
+  :init
+  (setq corfu-auto t
+        corfu-auto-delay 0.15
+        corfu-auto-prefix 2
+        corfu-cycle t)
+  :config (global-corfu-mode 1))
+
+(use-package cape
+  :init
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file))
+#+end_src
+
+=C-n=/=C-p= move, =RET= accepts, keep-typing ignores. Try it: =i= into
+the demo block below, type ~(mess~, watch the popup. (=C-h= *inside the
+popup* shows docs for the highlighted candidate.)
+
+#+begin_src emacs-lisp :tangle no
+;; scratch space -- type here
+#+end_src
+
+* Act VIII — Magit
+:PROPERTIES:
+:CUSTOM_ID: git
+:END:
+
+The single most common answer to "why do you still use Emacs?". Not a
+git plugin — a full git UI that makes the index feel like a text buffer.
+Stage by hunk or by *line* (visual-select inside a hunk, =s=), instant
+fixups, interactive rebase as an editable buffer.
+
+#+begin_src emacs-lisp
+(use-package magit
+  :commands (magit-status magit-blame-addition))
+#+end_src
+
+~diff-hl~ is your gitsigns: change markers in the fringe, hunk motions,
+and the =SPC g s/r/p= hunk commands you already bound:
+
+#+begin_src emacs-lisp
+(use-package diff-hl
+  :config
+  (global-diff-hl-mode 1)
+  (add-hook 'magit-pre-refresh-hook #'diff-hl-magit-pre-refresh)
+  (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh)
+  (with-eval-after-load 'evil
+    (evil-define-key 'normal 'global
+      "]c" #'diff-hl-next-hunk
+      "[c" #'diff-hl-previous-hunk)))
+#+end_src
+
+The lesson: =SPC g g= in any repo. Then press =?= — magit's entire
+keymap unfolds as a menu. Stage with =s=, commit with =c c=, push with
+=P p=. Five minutes in magit explains ten years of its reputation.
+
+* Act IX — Code: treesit, eglot, formatting
+:PROPERTIES:
+:CUSTOM_ID: code
+:END:
+
+** Tree-sitter
+
+Built in since Emacs 29; grammars compile on demand. ~M-x
+my/treesit-install-all~ (checklist, chapter one) builds the set below,
+then ~major-mode-remap-alist~ routes files into the ts-powered modes:
+
+#+begin_src emacs-lisp
+(setq treesit-language-source-alist
+      '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+        (c "https://github.com/tree-sitter/tree-sitter-c")
+        (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+        (python "https://github.com/tree-sitter/tree-sitter-python")
+        (rust "https://github.com/tree-sitter/tree-sitter-rust")
+        (lua "https://github.com/tree-sitter-grammars/tree-sitter-lua")
+        (json "https://github.com/tree-sitter/tree-sitter-json")
+        (toml "https://github.com/tree-sitter-grammars/tree-sitter-toml")
+        (yaml "https://github.com/tree-sitter-grammars/tree-sitter-yaml")
+        (javascript "https://github.com/tree-sitter/tree-sitter-javascript")
+        (typescript "https://github.com/tree-sitter/tree-sitter-typescript" nil "typescript/src")
+        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" nil "tsx/src")))
+
+(defun my/treesit-install-all ()
+  "Compile every grammar listed above (one-time, needs a C compiler)."
+  (interactive)
+  (dolist (lang (mapcar #'car treesit-language-source-alist))
+    (unless (treesit-language-available-p lang)
+      (treesit-install-language-grammar lang))))
+
+(setq major-mode-remap-alist
+      '((bash-mode . bash-ts-mode) (sh-mode . bash-ts-mode)
+        (c-mode . c-ts-mode) (c++-mode . c++-ts-mode)
+        (python-mode . python-ts-mode)
+        (js-mode . js-ts-mode)
+        (conf-toml-mode . toml-ts-mode)))
+(dolist (m '(("\\.rs\\'" . rust-ts-mode)
+             ("\\.ts\\'" . typescript-ts-mode)
+             ("\\.tsx\\'" . tsx-ts-mode)
+             ("\\.lua\\'" . lua-ts-mode)
+             ("\\.ya?ml\\'" . yaml-ts-mode)
+             ("\\.json\\'" . json-ts-mode)))
+  (add-to-list 'auto-mode-alist m))
+#+end_src
+
+(Emacs 31 collapses all of this into one variable, ~treesit-enabled-modes~,
+with auto-installing grammars — and you're *on* Emacs 31, so [[#emacs31][Act XIV]]
+switches it on. This block survives only to keep the file loadable on
+Emacs 30, and to supply ~treesit-language-source-alist~ — which 31 still
+reads to know *where* to fetch a grammar from.)
+
+** Eglot — the LSP client
+
+Built in. No mason: servers come from pacman (checklist). It attaches
+automatically in these modes:
+
+#+begin_src emacs-lisp
+(use-package eglot
+  :ensure nil   ; built-in -- nothing to install
+  :hook ((c-ts-mode c++-ts-mode python-ts-mode rust-ts-mode
+          typescript-ts-mode tsx-ts-mode lua-ts-mode)
+         . eglot-ensure)
+  :config (setq eglot-autoshutdown t))
+#+end_src
+
+Your nvim 0.11 ~gr*~ keymaps, bit for bit — plus =K= as a floating hover
+doc via ~eldoc-box~, because eldoc's echo-area-only default is the one
+thing ex-nvim users genuinely miss:
+
+#+begin_src emacs-lisp
+(use-package eldoc-box
+  :commands eldoc-box-help-at-point)
+
+(with-eval-after-load 'eglot
+  ;; evil-collection parks xref on a bare "gr"; clear it so gr* can nest
+  (evil-define-key 'normal eglot-mode-map (kbd "gr") nil)
+  (evil-define-key 'normal eglot-mode-map
+    "grn" #'eglot-rename
+    "gra" #'eglot-code-actions
+    "grr" #'xref-find-references
+    "gri" #'eglot-find-implementation
+    "grd" #'xref-find-definitions      ; gd works too, via evil
+    "grt" #'eglot-find-typeDefinition
+    "gO"  #'consult-imenu
+    "K"   #'eldoc-box-help-at-point))
+
+(with-eval-after-load 'flymake
+  (evil-define-key 'normal flymake-mode-map
+    "]d" #'flymake-goto-next-error
+    "[d" #'flymake-goto-prev-error))
+#+end_src
+
+** Formatting
+
+~apheleia~ replaces conform: asynchronous, and it restores your cursor
+position through the reformat. Same policy as your nvim: format on save
+everywhere /except/ C and C++, where =SPC f= still formats on demand:
+
+#+begin_src emacs-lisp
+(use-package apheleia
+  :config
+  (setf (alist-get 'lua-ts-mode apheleia-mode-alist) 'stylua)
+  (add-hook 'apheleia-inhibit-functions
+            (lambda () (memq major-mode '(c-mode c++-mode c-ts-mode c++-ts-mode))))
+  (apheleia-global-mode 1))
+#+end_src
+
+* Act X — Org mode
+:PROPERTIES:
+:CUSTOM_ID: org
+:END:
+
+You're inside it right now. Org is plain text that outlines, executes,
+tracks TODOs, does spreadsheets, and exports to anything. People move to
+Emacs for org and stay for everything else.
+
+First, the machinery this very file runs on. Saving =config.org=
+re-tangles it automatically; lexical scoping for any block you =C-c C-c=;
+and elisp blocks run without a confirmation prompt (it's our own config —
+but note that Emacs asks by default, a real security boundary for
+/other people's/ org files):
+
+#+begin_src emacs-lisp
+(setq org-confirm-babel-evaluate
+      (lambda (lang _body) (not (string= lang "emacs-lisp")))
+      org-link-elisp-skip-confirm-regexp "\\`(\\(message\\|describe-\\|nerd-icons\\)"
+      org-babel-default-header-args:emacs-lisp '((:lexical . "yes"))
+      org-src-preserve-indentation t)
+
+(defun my/tangle-on-save ()
+  (when (equal (file-truename buffer-file-name)
+               (file-truename (locate-user-emacs-file "config.org")))
+    (org-babel-tangle)))
+(add-hook 'org-mode-hook
+          (lambda () (add-hook 'after-save-hook #'my/tangle-on-save nil t)))
+#+end_src
+
+Vim grammar for org's structure commands (~evil-org~), and the typography
+that makes org files look like documents instead of markup soup
+(~org-modern~ + ~org-appear~ — markers hide, but reappear when your
+cursor lands on them so editing never fights you):
+
+#+begin_src emacs-lisp
+(use-package evil-org
+  :after org
+  :hook (org-mode . evil-org-mode))
+
+(use-package org-modern
+  :after org
+  :init (setq org-hide-emphasis-markers t
+              org-pretty-entities t)
+  :config (global-org-modern-mode 1))
+
+(use-package org-appear
+  :after org
+  :init (setq org-appear-autolinks t)
+  :hook (org-mode . org-appear-mode))
+#+end_src
+
+After your next restart, *this buffer transforms* — that's the payoff
+moment of the whole book. Then learn the org survival kit: =TAB= fold,
+=M-RET= new heading, =M-h/j/k/l= (evil-org) restructure subtrees, =C-c
+C-t= cycle TODO. The deep end lives at [[info:org#Top][the org manual]].
+
+* Act XI — Beauty
+:PROPERTIES:
+:CUSTOM_ID: beauty
+:END:
+
+Same theme as your nvim — tokyonight, via ~doom-themes~:
+
+#+begin_src emacs-lisp
+(use-package doom-themes
+  :config
+  (setq doom-themes-enable-italic nil)   ; your "no italic comments" rule
+  (load-theme 'doom-tokyo-night t))
+#+end_src
+
+Font: first Nerd Font on your system from this list wins. (Ghostty's
+default is JetBrains Mono; install ~ttf-jetbrains-mono-nerd~ if you want
+Emacs to match it exactly.)
+
+#+begin_src emacs-lisp
+(when (display-graphic-p)
+  (let ((font (seq-find (lambda (f) (find-font (font-spec :name f)))
+                        '("JetBrainsMono Nerd Font" "MesloLGM Nerd Font"
+                          "FantasqueSansM Nerd Font" "monospace"))))
+    (set-face-attribute 'default nil :family font :height 115)))
+#+end_src
+
+Icons everywhere (your nvim-web-devicons), a real modeline, and
+~spacious-padding~ — breathing room around windows that makes Emacs stop
+looking like 1994:
+
+#+begin_src emacs-lisp
+(use-package nerd-icons)   ; M-x nerd-icons-install-fonts, once (checklist)
+
+(use-package nerd-icons-completion
+  :after marginalia
+  :config
+  (nerd-icons-completion-mode 1)
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
+(use-package nerd-icons-corfu
+  :after corfu
+  :config (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+
+(use-package nerd-icons-dired
+  :hook (dired-mode . nerd-icons-dired-mode))
+
+(use-package doom-modeline
+  :config (doom-modeline-mode 1))
+
+(use-package spacious-padding
+  :config (spacious-padding-mode 1))
+#+end_src
+
+While we're near dired (the file manager you haven't met yet): =-= opens
+the current file's directory, exactly like vim-vinegar. It's a regular
+buffer — =j/k= around, =RET= to open, and edit filenames like text with
+=C-x C-q= (wdired: rename twenty files with evil macros, =C-c C-c= to
+commit).
+
+#+begin_src emacs-lisp
+(setq dired-listing-switches "-alh --group-directories-first"
+      dired-kill-when-opening-new-dired-buffer t)
+(with-eval-after-load 'evil
+  (evil-define-key 'normal 'global "-" #'dired-jump))
+#+end_src
+
+* Act XII — Terminals
+:PROPERTIES:
+:CUSTOM_ID: terminals
+:END:
+
+~vterm~ is a real terminal emulator (libvterm in C — fast, renders TUIs
+correctly). First use compiles a small module; it needs the cmake +
+libvterm checklist line, and asks permission once.
+
+#+begin_src emacs-lisp
+(use-package vterm
+  :commands vterm
+  :init (setq vterm-max-scrollback 10000))
+
+(defun my/vterm-below ()
+  "Your <leader>tt."
+  (interactive)
+  (select-window (split-window-below -12))
+  (vterm))
+
+(defun my/vterm-right ()
+  "Your <leader>tv."
+  (interactive)
+  (select-window (split-window-right -60))
+  (vterm))
+
+(defun my/vterm-toggle ()
+  "Toggle a vterm in a 12-line split below.
+If a vterm window is showing, hide it.  Otherwise reuse the most
+recent vterm buffer (or spawn one) -- never stacks new terminals."
+  (interactive)
+  (let ((win (seq-find (lambda (w)
+                         (eq (buffer-local-value 'major-mode (window-buffer w))
+                             'vterm-mode))
+                       (window-list))))
+    (if win
+        (delete-window win)
+      (let ((buf (seq-find (lambda (b)
+                             (eq (buffer-local-value 'major-mode b) 'vterm-mode))
+                           (buffer-list))))
+        (select-window (split-window-below -12))
+        (if buf (switch-to-buffer buf) (vterm))))))
+
+;; evil-collection starts vterm in *insert* state and rebinds C-j/C-k/C-l
+;; to type themselves into the shell, so your window keys never fire once
+;; you're in a terminal.  And <escape> drops to evil normal state instead
+;; of reaching the program -- which is why Claude Code never sees ESC and
+;; won't stop.  Re-claim C-hjkl as window motions, and send ESC to the
+;; terminal so TUIs (and Claude Code's interrupt) work.  Runs after
+;; evil-collection's own vterm setup, so it wins.
+(with-eval-after-load 'vterm
+  (evil-collection-define-key 'insert 'vterm-mode-map
+    (kbd "C-h")    #'evil-window-left
+    (kbd "C-j")    #'evil-window-down
+    (kbd "C-k")    #'evil-window-up
+    (kbd "C-l")    #'evil-window-right
+    (kbd "<escape>") #'vterm--self-insert))
+#+end_src
+
+Inside vterm: =i= talks to the shell, =ESC= returns to normal state
+where the scrollback is just text — search it, yank from it. (Worth one
+session someday: ~M-x eshell~, the shell written /in/ elisp where the
+prompt understands Lisp. There is nothing like it outside Emacs.)
+
+* Act XIII — AI
+:PROPERTIES:
+:CUSTOM_ID: ai
+:END:
+
+~gptel~ is the ecosystem standard: chat in any buffer, rewrite regions,
+talk to any model. Bound under =SPC a= like your claudecode.nvim setup.
+It reads the key from =~/.authinfo= — add this line there (and ~chmod
+600~ it):
+
+: machine api.anthropic.com login apikey password sk-ant-...
+
+#+begin_src emacs-lisp
+(use-package gptel
+  :commands (gptel gptel-menu gptel-send gptel-rewrite)
+  :config
+  (setq gptel-backend (gptel-make-anthropic "Claude" :stream t :key 'gptel-api-key)
+        gptel-model 'claude-sonnet-4-6))
+#+end_src
+
+For the full Claude-Code-in-the-editor experience (diffs, tool use, your
+=SPC a c= toggle workflow), the current pick is ~claude-code-ide.el~.
+Opt in by changing ~:tangle no~ to ~:tangle ./config.el~ on this block
+and saving:
+
+#+begin_src emacs-lisp :tangle no
+(use-package claude-code-ide
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :config (claude-code-ide-emacs-tools-setup))
+#+end_src
+
+* Act XIV — Emacs 31 goodies
+:PROPERTIES:
+:CUSTOM_ID: emacs31
+:END:
+
+This Emacs is built from /master/. The 31 release branch has already been
+cut, so master now calls itself *32.0.50* — but every goody the 31 cycle
+introduced (the ones this chapter is named for) lives on master, plus
+whatever 32 is growing. The chapters above still run on Emacs 30, so the
+genuinely-new features gather here, each guarded with ~(when (>=
+emacs-major-version 31) ...)~ — true on 31 and 32 alike.
+
+That guard handles the /version/. It does not handle an option that was
+renamed or dropped as master moved on (~native-comp-async-on-battery-power~
+was one such — present in the 31 pretest, gone from 32.0.50). For that we
+need a second, finer guard, below.
+
+But first, your next rung of elisp. You've written a ~defun~ (Act V) and
+bent an existing command with ~advice~ (Act IV); a /macro/ is the rung
+above both. A function receives *values* and returns a value. A macro
+receives your code *unevaluated* and returns new code, which Emacs then
+runs in its place — you're writing a small program that writes programs.
+
+~my/setopt-when-bound~ takes the same =VAR VAL VAR VAL= pairs as ~setopt~
+and, for each, emits a ~setopt~ wrapped in a ~boundp~ test. The payoff is
+real on master — an option renamed out from under you becomes a skipped
+line, not a halted startup — but read the body as a recipe: backtick
+=`= quotes a code template, =,var= drops a value into it, and =,@= splices
+a /list/ of forms in. That is the whole of macro-writing in three commas.
+
+#+begin_src emacs-lisp
+(defmacro my/setopt-when-bound (&rest pairs)
+  "`setopt' each VAR to VAL in PAIRS, skipping any VAR not bound here.
+Keeps Emacs-31 options from breaking startup on a build (or an Emacs 30)
+where a given option hasn't landed."
+  (let (forms)
+    (while pairs
+      (let ((var (pop pairs)) (val (pop pairs)))
+        (push `(when (boundp ',var) (setopt ,var ,val)) forms)))
+    `(progn ,@(nreverse forms))))
+#+end_src
+
+See what it wrote: put point after the closing paren of any
+~my/setopt-when-bound~ block below and =C-c C-v C-m= (~macroexpand~) — or
+just =SPC h f= on ~setopt~ for what the underlying command does. =C-h i= →
+/Elisp/ → "Macros" is the whole story when you want it.
+
+** Tree-sitter, finally automatic
+
+The promise [[#code][Act IX]] made. ~treesit-enabled-modes~ turns on /every/
+tree-sitter mode you have a grammar for and remaps the classic modes into
+them — the hand-written ~major-mode-remap-alist~ upstairs becomes a no-op.
+And ~treesit-auto-install-grammar~ fetches a missing grammar the first
+time you open such a file (asking first), using the source list Act IX
+still defines. Your ~M-x my/treesit-install-all~ chore is now optional.
+
+#+begin_src emacs-lisp
+(when (>= emacs-major-version 31)
+  (my/setopt-when-bound
+   treesit-enabled-modes t                 ; enable + remap every ts-mode
+   treesit-auto-install-grammar 'ask))     ; fetch a missing grammar on demand
+#+end_src
+
+** Documentation that reads like documentation
+
+Three sharpenings of the help [[#code][eglot]] already gives you. eldoc paints
+the doc for the symbol under point on its own, no command; eglot renders
+LSP docs as actual markdown instead of escaped noise; and the code-action
+"lightbulb" stops twitching in the fringe.
+
+#+begin_src emacs-lisp
+(when (>= emacs-major-version 31)
+  (my/setopt-when-bound
+   eldoc-help-at-pt t                       ; auto-show doc for symbol at point
+   eglot-code-action-indications nil))      ; no lightbulb churn
+
+(with-eval-after-load 'eglot
+  (when (and (boundp 'eglot-documentation-renderer)
+             (fboundp 'markdown-ts-view-mode))
+    (setopt eglot-documentation-renderer 'markdown-ts-view-mode)))
+#+end_src
+
+The renderer above leans on Emacs 31's new built-in ~markdown-ts-mode~ —
+tree-sitter Markdown with fontified code blocks and inline images. Free,
+so claim it for =.md= files:
+
+#+begin_src emacs-lisp
+(when (and (>= emacs-major-version 31)
+           (fboundp 'markdown-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-ts-mode)))
+#+end_src
+
+Open any =README.md= after your next restart: it arrives fontified,
+fenced code blocks highlighted in their own language, with nothing
+installed to make it so.
+
+** Reshaping windows without moving buffers
+
+New in 31: rotate and flip a window layout while every buffer keeps its
+contents. They live on the =C-x w= prefix natively; we also hang them off
+the leader as their own =SPC W= group (capital W — =SPC w= is still your
+evil window map), so which-key advertises them.
+
+#+begin_src emacs-lisp
+(when (and (>= emacs-major-version 31)
+           (fboundp 'window-layout-transpose))
+  (my/leader
+    "W"  '(:ignore t :wk "win-layout")
+    "Wt" '(window-layout-transpose :wk "transpose")
+    "Wr" '(window-layout-rotate-clockwise :wk "rotate")
+    "Wh" '(window-layout-flip-leftright :wk "flip ↔")
+    "Wv" '(window-layout-flip-topdown :wk "flip ↕")))
+#+end_src
+
+Try it on this very screen: =SPC w v= to split this window in two, put
+point in either pane, then =SPC W t=. The panes trade places and not one
+character moves — =SPC W v= flips them top-to-bottom instead. Rearranging
+a layout stops meaning "tear it down and rebuild it."
+
+** Version control, sharper
+
+You live in magit, but the built-in ~vc~ layer underneath gained edges
+worth keeping: =vc-dir= hides files that are up to date, and rewriting
+already-published history (an amend/rebase of pushed commits) now asks
+first instead of silently refusing or silently doing it.
+
+#+begin_src emacs-lisp
+(when (>= emacs-major-version 31)
+  (my/setopt-when-bound
+   vc-dir-auto-hide-up-to-date 'revert
+   vc-allow-rewriting-published-history 'ask))
+#+end_src
+
+** The small civilizing touches
+
+None of these earn a chapter; together they round off the year's rough
+edges. Read the right column — each is one habit made less annoying.
+
+#+begin_src emacs-lisp
+(when (>= emacs-major-version 31)
+  (my/setopt-when-bound
+   kill-region-dwim 'emacs-word               ; C-w with no region kills a word back
+   delete-pair-push-mark t                    ; mark the gap after deleting a pair
+   ibuffer-human-readable-size t              ; KB/MB, not raw bytes, in ibuffer
+   uniquify-after-kill-buffer-flag t          ; un-disambiguate names after a kill
+   dired-hide-details-hide-absolute-location t ; drop the redundant path in dired
+   view-lossage-auto-refresh t))              ; C-h l updates live
+#+end_src
+
+A few advertised 31 features need no line here. *Editable xref* buffers
+(press =e= in a references list, edit matches like text, =C-c C-c=) is
+just on. The =term=/=ansi-term= redisplay bug that mangled ~htop~ is
+fixed. And the eager-completion and ~minibuffer-visible-completions~
+goodies target the stock =*Completions*= UI — which [[#completion][vertico]] already
+replaced, so enabling them here would be setting dials nothing reads.
+
+* Epilogue — graduation [0/7]
+:PROPERTIES:
+:CUSTOM_ID: epilogue
+:END:
+
+The config is complete and yours. What's left is fluency:
+
+- [ ] =SPC h k= three keys you pressed today. Read what they actually run.
+- [ ] In any elisp above: =SPC h f= on a function name. From its help
+  buffer, press =s= — you're reading Emacs' own source. It's all open.
+- [ ] Stage a commit entirely inside magit, including a partial hunk.
+- [ ] =SPC s h= → org manual → read /one/ section that sounds useful.
+- [ ] Edit a block in this file, save, watch the echo area tangle it,
+  =SPC q r= to restart into your change. That loop is the whole game.
+- [ ] Add a package yourself: find one at [[https://melpa.org][MELPA]], write a ~use-package~
+  block in a new chapter, save, restart.
+- [ ] When something annoys you — and it will — fix it /here/, with a
+  sentence about why. A year from now this file is your autobiography.
+
+Two commands you'll meet everywhere in Emacs folklore: =M-x= (=SPC :=)
+runs any command by name — when you don't know the key, you can always
+ask by name. And [[elisp:(describe-bindings)][describe-bindings]] dumps every active key in the
+current buffer, which is the honest answer to "what can I even press?".
+
+This file stays honest because it must: it is the program. Prose that
+lies about the code sits three lines from the code it lies about.
+
+Welcome to Emacs. =SPC q r= when ready.

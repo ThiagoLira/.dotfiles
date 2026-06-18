@@ -1,0 +1,6 @@
+# Only the literate source and its bootstrap are tracked.
+# Everything else here (tangled output, packages, caches) is generated.
+*
+!.gitignore
+!init.el
+!config.org
