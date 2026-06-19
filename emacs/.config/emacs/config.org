@@ -52,7 +52,8 @@ checkbox as you go — the =[0/6]= cookie above updates itself.
 - [ ] Install language servers (same servers your nvim used, but from
   pacman instead of mason): ~sudo pacman -S --needed clang pyright
   rust-analyzer typescript-language-server lua-language-server~
-- [ ] For the terminal chapter: ~sudo pacman -S --needed cmake libvterm~
+- [ ] Terminal chapter (ghostel): nothing to install — the native
+  module is a prebuilt binary that auto-downloads on first ~M-x ghostel~.
 - [ ] Press =SPC h k= and then press any key you're curious about. Emacs
   will tell you exactly what that key runs and link to its source. This
   is /self-documenting software/ — your most powerful learning tool here.
@@ -370,9 +371,10 @@ that's what evil's window map already contained.
     "gp"  '(diff-hl-show-hunk :wk "preview hunk")
 
     "t"   '(:ignore t :wk "terminal/toggle")
-    "tt"  '(my/vterm-toggle :wk "terminal toggle")
-    "tT"  '(my/vterm-below :wk "terminal (new below)")
-    "tv"  '(my/vterm-right :wk "terminal right")
+    "tt"  '(my/ghostel-toggle :wk "terminal toggle")
+    "tT"  '(my/ghostel-below :wk "terminal (new below)")
+    "tv"  '(my/ghostel-right :wk "terminal right")
+    "tp"  '(ghostel-project :wk "terminal (project root)")
     "th"  '(eglot-inlay-hints-mode :wk "inlay hints")
     "tu"  '(vundo :wk "undo tree")
 
@@ -795,64 +797,81 @@ commit).
 :CUSTOM_ID: terminals
 :END:
 
-~vterm~ is a real terminal emulator (libvterm in C — fast, renders TUIs
-correctly). First use compiles a small module; it needs the cmake +
-libvterm checklist line, and asks permission once.
+~ghostel~ is a terminal emulator powered by *libghostty-vt* — the VT
+engine from the Ghostty terminal, the same correctness and speed as a
+standalone Ghostty but living inside an Emacs buffer. True color,
+synchronized output, the Kitty keyboard and graphics protocols, inline
+images, hyperlinks, desktop notifications, and shell integration
+(directory tracking, prompt navigation) for bash/zsh/fish. No more
+"shitty terminal" — this is the real thing. The native module is a
+*prebuilt binary that auto-downloads on first use*: nothing to compile,
+nothing to install from pacman.
 
 #+begin_src emacs-lisp
-(use-package vterm
-  :commands vterm
-  :init (setq vterm-max-scrollback 10000))
+(use-package ghostel
+  :commands (ghostel ghostel-project ghostel-other)
+  :init
+  ;; Keys Emacs keeps for itself even in the terminal -- everything else
+  ;; is forwarded to the program.  C-hjkl stay with Emacs so your window
+  ;; motions work straight from the terminal.
+  (setq ghostel-keymap-exceptions '("C-c" "C-x" "C-h" "C-j" "C-k" "C-l")))
 
-(defun my/vterm-below ()
-  "Your <leader>tt."
+;; Evil integration: ghostel-mode buffers get evil states like everything
+;; else, with the terminal's own input modes underneath.
+(use-package evil-ghostel
+  :after (ghostel evil)
+  :hook (ghostel-mode . evil-ghostel-mode))
+
+(defun my/ghostel-below ()
+  "Your <leader>tT -- a fresh terminal in a 12-line split below."
   (interactive)
   (select-window (split-window-below -12))
-  (vterm))
+  (ghostel))
 
-(defun my/vterm-right ()
-  "Your <leader>tv."
+(defun my/ghostel-right ()
+  "Your <leader>tv -- a fresh terminal in a 60-column split right."
   (interactive)
   (select-window (split-window-right -60))
-  (vterm))
+  (ghostel))
 
-(defun my/vterm-toggle ()
-  "Toggle a vterm in a 12-line split below.
-If a vterm window is showing, hide it.  Otherwise reuse the most
-recent vterm buffer (or spawn one) -- never stacks new terminals."
+(defun my/ghostel-toggle ()
+  "Toggle a ghostel terminal in a 12-line split below.
+If a ghostel window is showing, hide it.  Otherwise reuse the most
+recent ghostel buffer (or spawn one) -- never stacks new terminals."
   (interactive)
   (let ((win (seq-find (lambda (w)
                          (eq (buffer-local-value 'major-mode (window-buffer w))
-                             'vterm-mode))
+                             'ghostel-mode))
                        (window-list))))
     (if win
         (delete-window win)
       (let ((buf (seq-find (lambda (b)
-                             (eq (buffer-local-value 'major-mode b) 'vterm-mode))
+                             (eq (buffer-local-value 'major-mode b) 'ghostel-mode))
                            (buffer-list))))
         (select-window (split-window-below -12))
-        (if buf (switch-to-buffer buf) (vterm))))))
+        (if buf (switch-to-buffer buf) (ghostel))))))
 
-;; evil-collection starts vterm in *insert* state and rebinds C-j/C-k/C-l
-;; to type themselves into the shell, so your window keys never fire once
-;; you're in a terminal.  And <escape> drops to evil normal state instead
-;; of reaching the program -- which is why Claude Code never sees ESC and
-;; won't stop.  Re-claim C-hjkl as window motions, and send ESC to the
-;; terminal so TUIs (and Claude Code's interrupt) work.  Runs after
-;; evil-collection's own vterm setup, so it wins.
-(with-eval-after-load 'vterm
-  (evil-collection-define-key 'insert 'vterm-mode-map
-    (kbd "C-h")    #'evil-window-left
-    (kbd "C-j")    #'evil-window-down
-    (kbd "C-k")    #'evil-window-up
-    (kbd "C-l")    #'evil-window-right
-    (kbd "<escape>") #'vterm--self-insert))
+;; C-hjkl are window motions even inside the terminal.  We keep them out
+;; of the program via `ghostel-keymap-exceptions' above, then bind them to
+;; evil's window commands in ghostel's default (semi-char) input map so
+;; they actually move windows.  Guarded: the map name is only present once
+;; ghostel has loaded.
+(with-eval-after-load 'ghostel
+  (when (boundp 'ghostel-semi-char-mode-map)
+    (define-key ghostel-semi-char-mode-map (kbd "C-h") #'evil-window-left)
+    (define-key ghostel-semi-char-mode-map (kbd "C-j") #'evil-window-down)
+    (define-key ghostel-semi-char-mode-map (kbd "C-k") #'evil-window-up)
+    (define-key ghostel-semi-char-mode-map (kbd "C-l") #'evil-window-right)))
 #+end_src
 
-Inside vterm: =i= talks to the shell, =ESC= returns to normal state
-where the scrollback is just text — search it, yank from it. (Worth one
-session someday: ~M-x eshell~, the shell written /in/ elisp where the
-prompt understands Lisp. There is nothing like it outside Emacs.)
+Ghostel has several *input modes* that decide how much of your typing
+the program sees: =C-c C-j= semi-char (the default — most keys go to the
+shell), =C-c M-d= char (everything goes through; exit with =M-RET=),
+=C-c C-l= line, =C-c C-t= copy mode (freeze the screen to select/yank
+scrollback like any buffer). =SPC tt= toggles a drawer terminal below,
+=SPC tp= opens one at the project root. (Worth one session someday:
+~M-x eshell~, the shell written /in/ elisp where the prompt understands
+Lisp. There is nothing like it outside Emacs.)
 
 * Act XIII — AI
 :PROPERTIES:
