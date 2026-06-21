@@ -319,9 +319,10 @@ pause is stock behavior now. Its delay is your nvim ~timeoutlen~:
 
 ~general.el~ defines the =SPC= leader map. The layout below *is your nvim
 layout*: =SPC s= search, =SPC w= windows, =SPC t= terminal/toggles,
-=SPC SPC= buffers, =SPC TAB= alternate file, =SPC f= format, =SPC a= AI,
-=SPC d= dotfiles. New citizens: =SPC g= git, =SPC h= help, =SPC p=
-project, =SPC q= quit.
+=SPC b= buffers, =SPC TAB= alternate file, =SPC f= format, =SPC a= AI,
+=SPC d= dotfiles. New citizens: =SPC SPC= M-x (Spacemacs-style), =SPC e=
+eval (elisp evaluation), =SPC g= git, =SPC h= help, =SPC p= project,
+=SPC q= quit.
 
 Note the trick on =w=, =h=, =p=: we don't define those maps — we mount
 Emacs' own prefix maps (=evil-window-map=, =help-map=,
@@ -339,13 +340,16 @@ that's what evil's window map already contained.
     :prefix "SPC")
 
   (my/leader
-    "SPC" '(consult-buffer :wk "buffers")
+    "SPC" '(execute-extended-command :wk "M-x")
     "TAB" '(evil-switch-to-windows-last-buffer :wk "alt buffer")
     "/"   '(consult-line :wk "search buffer")
     ":"   '(execute-extended-command :wk "M-x")
     "u"   '(universal-argument :wk "C-u prefix arg")
     "f"   '(apheleia-format-buffer :wk "format")
     "c"   '(async-shell-command :wk "shell command")
+
+    "b"   '(:ignore t :wk "buffers")
+    "bb"  '(consult-buffer :wk "switch buffer")
 
     "w"   '(:keymap evil-window-map :wk "windows")
     "h"   '(:keymap help-map :wk "help")
@@ -388,6 +392,15 @@ that's what evil's window map already contained.
     "df"  '(my/open-config :wk "this file")
     "dr"  '(my/reload-config :wk "reload config")
     "dd"  '((lambda () (interactive) (dired "~/.dotfiles")) :wk "dired dotfiles")
+
+    "e"   '(:ignore t :wk "eval")
+    "eb"  '(eval-buffer :wk "buffer")
+    "ee"  '(eval-last-sexp :wk "last sexp")
+    "ef"  '(eval-defun :wk "defun (top form)")
+    "er"  '(eval-region :wk "region")
+    "ep"  '(eval-print-last-sexp :wk "print last sexp")
+    "e:"  '(eval-expression :wk "eval expression")
+    "ei"  '(ielm :wk "ielm REPL")
 
     "q"   '(:ignore t :wk "quit")
     "qq"  '(save-buffers-kill-terminal :wk "quit")
