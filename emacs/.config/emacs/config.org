@@ -130,6 +130,23 @@ Anatomy of a ~use-package~ form, since you'll read thirty of them below:
 ~:bind~ attach things *and* defer loading until needed — the same trick
 as lazy.nvim's ~event=~ and ~keys=~.
 
+First package, because everything after it depends on a correct =PATH=.
+A GUI Emacs launched from a desktop icon (not a shell) inherits a bare
+=PATH= — so binaries you keep in =~/.local/bin= (~claude~,
+~claude-agent-acp~, formatters) are invisible to ~executable-find~, and
+tools mysteriously "aren't installed". ~exec-path-from-shell~ runs your
+login shell once and copies its =PATH= into Emacs, so the two never
+drift. Only bothers when it'd actually differ (GUI frame or daemon); a
+terminal Emacs already inherits the shell's environment.
+
+#+begin_src emacs-lisp
+(use-package exec-path-from-shell
+  :init (setq exec-path-from-shell-arguments '("-l"))  ; login shell, no interactive noise
+  :config
+  (when (or (memq window-system '(pgtk x ns)) (daemonp))
+    (exec-path-from-shell-initialize)))
+#+end_src
+
 * Act III — Your init.lua, translated
 :PROPERTIES:
 :CUSTOM_ID: defaults
@@ -220,7 +237,21 @@ read once, at load time) — hence ~:init~, not ~:config~:
   ;; ESC in normal state also clears search highlight -- your <Esc> nohlsearch
   (advice-add 'evil-force-normal-state :after #'evil-ex-nohighlight)
   ;; ESC quits minibuffer prompts too, instead of stacking them
-  (global-set-key [escape] #'keyboard-escape-quit))
+  (global-set-key [escape] #'keyboard-escape-quit)
+  ;; C-v pastes the system clipboard where you actually type -- insert
+  ;; state and the minibuffer -- the OS habit, without stealing normal
+  ;; state's C-v from evil's visual-block selection.  (yank reads the
+  ;; kill-ring, which the GUI build keeps synced with the Wayland clipboard.)
+  (define-key evil-insert-state-map (kbd "C-v") #'yank)
+  (define-key minibuffer-local-map  (kbd "C-v") #'yank)
+  ;; Ctrl-Shift-C / Ctrl-Shift-V: copy and paste ALWAYS, no matter the
+  ;; evil state, major mode, or minor mode.  bind-key* installs them in
+  ;; an override map that outranks everything else, so nothing can shadow
+  ;; them.  (C-S-c copies the active region; in visual state that's your
+  ;; selection.  C-S-v yanks the system clipboard.)
+  (require 'bind-key)
+  (bind-key* "C-S-c" #'kill-ring-save)
+  (bind-key* "C-S-v" #'yank))
 #+end_src
 
 Vanilla evil only covers editing buffers. ~evil-collection~ brings vim
@@ -387,6 +418,7 @@ that's what evil's window map already contained.
     "aa"  '(gptel-menu :wk "menu")
     "as"  '(gptel-send :wk "send region")
     "ar"  '(gptel-rewrite :wk "rewrite")
+    "ag"  '(agent-shell-anthropic-start-claude-code :wk "agent shell (claude)")
 
     "d"   '(:ignore t :wk "dotfiles")
     "df"  '(my/open-config :wk "this file")
@@ -916,6 +948,59 @@ and saving:
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
   :config (claude-code-ide-emacs-tools-setup))
 #+end_src
+
+** Agent shell — Claude (and friends) over ACP
+
+~agent-shell~ ([[https://github.com/xenodium/agent-shell][xenodium/agent-shell]]) is a comint shell that talks to coding
+agents through the *Agent Client Protocol*: streaming replies, tool
+calls, and file diffs, all inside a normal Emacs buffer. It speaks to
+any ACP agent — Gemini, Codex, Goose — but it's wired here for Claude.
+=SPC a g= starts a session; ~M-x agent-shell~ is the picker for the rest.
+
+The shell drives Claude through a small ACP bridge that must live on your
+=PATH=. Install it once (already done if you let me set this up):
+
+: npm install -g @agentclientprotocol/claude-agent-acp
+
+Authentication defaults to ~:login t~, which reuses the same OAuth
+session as the ~claude~ CLI — so if you're signed in there, nothing else
+to do. Swap in ~(agent-shell-anthropic-make-authentication :api-key
+(lambda () (auth-source-pass-get 'secret "anthropic-api-key")))~ to use a
+key instead. ~acp~ and ~shell-maker~ are pulled from MELPA automatically.
+
+#+begin_src emacs-lisp
+(use-package agent-shell
+  :commands (agent-shell agent-shell-anthropic-start-claude-code)
+  :config
+  ;; :login reuses the claude CLI's OAuth session; it's the default,
+  ;; spelled out here so the auth story is visible in one place.
+  (setq agent-shell-anthropic-authentication
+        (agent-shell-anthropic-make-authentication :login t))
+  ;; LaTeX math. The default in-place renderer can't do math; the
+  ;; (deprecated) overlay renderer can, by handing blocks to org's
+  ;; latex preview — needs a TeX install + dvipng/dvisvgm.
+  (setq agent-shell-markdown-render-function #'agent-shell--markdown-overlays-put
+        markdown-overlays-render-latex t)
+  ;; org's inline previews are tiny by default; bump the scale and use
+  ;; dvisvgm for crisp, resolution-independent glyphs.
+  (with-eval-after-load 'org
+    ;; org loads ulem.sty into every preview (for underline/strike), but
+    ;; this TeX install doesn't ship it and it has nothing to do with
+    ;; math -- without this, EVERY latex preview silently fails to
+    ;; compile (no .dvi -> no image -> agent-shell shows nothing).
+    (setq org-latex-default-packages-alist
+          (seq-remove (lambda (e) (and (consp e) (equal (nth 1 e) "ulem")))
+                      org-latex-default-packages-alist))
+    (setq org-preview-latex-default-process 'dvisvgm
+          org-format-latex-options
+          (plist-put org-format-latex-options :scale 1.5))))
+#+end_src
+
+agent-shell renders =$inline$= and =$$display$$= math (and ~\(…\)~ /
+~\[…\]~) as images once the agent's reply settles. Two caveats: it's
+flagged /experimental/ upstream, and the overlay renderer it rides on is
+marked deprecated — if a future agent-shell removes it, drop the
+~render-function~ line and LaTeX support goes with it.
 
 * Act XIV — Emacs 31 goodies
 :PROPERTIES:
